@@ -1,0 +1,22 @@
+{
+    "name": "minvws/nl-rdo-zammad-api-export",
+    "autoload": {
+        "psr-4": {
+            "Minvws\\Zammad\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joshua Thijssen",
+            "email": "jthijssen@noxlogic.nl"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "zammad/zammad-api-client-php": "^2.0",
+        "symfony/console": "^6.1"
+    },
+    "require-dev": {
+        "symfony/dotenv": "^6.1"
+    }
+}
