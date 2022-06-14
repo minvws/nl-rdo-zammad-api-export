@@ -4,22 +4,29 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Service;
 
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use ZammadAPIClient\Client;
 use ZammadAPIClient\Resource\Tag;
 use ZammadAPIClient\Resource\Ticket;
-use ZammadAPIClient\Resource\User;
 use ZammadAPIClient\ResourceType;
 
 class ZammadService
 {
     protected Client $client;
+    protected Generator $generator;
+    protected OutputInterface $output;
+
 
     /**
      * @param string $url
      * @param string $token
      */
-    public function __construct(string $url, string $token)
+    public function __construct(string $url, string $token, HtmlGeneratorService $generator)
     {
+        $this->generator = $generator;
+        $this->output = new NullOutput();
+
         $this->client = new Client([
             'url' => $url,
             'http_token' => $token,
@@ -34,17 +41,21 @@ class ZammadService
         // Fetch user
         $user = $this->client->resource(ResourceType::USER)->search($email);
         if (count($user) == 0) {
-            throw new \Exception("User not found");
+            throw new \Exception("User $email not found");
         }
         $user = $user[0];
 
         // Fetch everything for this user only
         $this->client->setOnBehalfOfUser($user->getId());
 
+        $result = [
+            'tickets' => [],
+        ];
+
         $tickets = $this->client->resource(ResourceType::TICKET)->all();
         foreach ($tickets as $ticket) {
             /** @var Ticket $ticket */
-            print("* Dumping ticket " . $ticket->getID() . ' : '. $ticket->getValue('title'). "\n");
+            $this->output->writeln("* Dumping ticket " . $ticket->getID() . ' : '. $ticket->getValue('title'));
 
             $ticketPath = $destinationPath . "/". $email . "/" . $ticket->getValue('number');
             @mkdir($ticketPath, 0777, true);
@@ -54,6 +65,7 @@ class ZammadService
             $data = json_encode($ticket->getValues(), JSON_PRETTY_PRINT);
             file_put_contents($ticketPath . "/ticket.json", $data);
 
+            $result['tickets'][] = $ticket->getValues();
 
             // Dump tags
             /** @var Tag $tag */
@@ -77,6 +89,16 @@ class ZammadService
                     file_put_contents($articlePath . "/". $attachment['filename'], $content);
                 }
             }
+
+
+            $this->generator->generateTicket($ticketPath, $ticket);
         }
+
+        $this->generator->generateIndex($destinationPath, $email."/", $result['tickets']);
+    }
+
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
     }
 }

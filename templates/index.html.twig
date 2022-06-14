@@ -1,0 +1,20 @@
+<html>
+<head>
+    <title>Archive</title>
+    {% include "style.css" %}
+</head>
+
+<body>
+
+    <h1>Zammad Archive</h1>
+
+    <table>
+{% for ticket in tickets %}
+    <tr><td>{{ ticket.number }}</td><td><a href="{{ basepath }}/{{ ticket.number }}/ticket.html">{{ ticket.title }}</a></td></tr>
+{% endfor %}
+    </table>
+
+    <small>Generated at {{ "now"|date }}</small>
+
+</body>
+</html>
