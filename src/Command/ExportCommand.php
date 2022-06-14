@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Command;
 
+use Minvws\Zammad\Service\HtmlGeneratorService;
 use Minvws\Zammad\Service\ZammadService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,6 +16,7 @@ class ExportCommand extends Command
     protected static $defaultName = 'export';
 
     protected ZammadService $zammadService;
+    protected HtmlGeneratorService $generatorService;
 
     public function __construct(ZammadService $zammadService)
     {
@@ -34,6 +36,8 @@ class ExportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->zammadService->setOutput($output);
+
         $this->zammadService->export($input->getArgument('email'), $input->getArgument('path'));
         return Command::SUCCESS;
     }

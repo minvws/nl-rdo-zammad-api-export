@@ -1,0 +1,36 @@
+<html>
+<head>
+    <title>Archive | Ticket {{ ticket.number }}</title>
+    {% include "style.css" %}
+</head>
+
+<body>
+    <h1>{{ ticket.number }}: {{ ticket.title }}</h1>
+
+    <table class="pure-table">
+        <tr><td>Created at</td><td>{{ ticket.created_at }}</td></tr>
+        <tr><td>Created by</td><td>{{ ticket.owner_id }}</td></tr>
+        <tr><td>Articles</td><td>{{ ticket.article_count }}</td></tr>
+        <tr><td>Customer</td><td>{{ ticket.customer }}</td></tr>
+        <tr><td>Owner</td><td>{{ ticket.owner }}</td></tr>
+    </table>
+
+{% for article in articles %}
+    <hr>
+
+    <table class="pure-table">
+        <tr><td>Created at</td><td>{{ article.created_at }}</td></tr>
+        <tr><td>Created by</td><td>{{ article.created_by }}</td></tr>
+        <tr><td>From</td><td>{{ article.from }}</td></tr>
+        <tr><td>To</td><td>{{ article.to }}</td></tr>
+        <tr><td>Subject</td><td>{{ article.subject }}</td></tr>
+        <tr><td>Sender</td><td>{{ article.sender }}</td></tr>
+        <tr><td>Type</td><td>{{ article.type }}</td></tr>
+    </table>
+
+    {{ article.body | raw | nl2br}}
+{% endfor %}
+
+    <small>Generated at {{ "now"|date }}</small>
+</body>
+</html>
