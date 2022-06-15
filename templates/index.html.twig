@@ -10,7 +10,7 @@
 
     <table>
 {% for ticket in tickets %}
-    <tr><td>{{ ticket.number }}</td><td><a href="{{ basepath }}/{{ ticket.number }}/ticket.html">{{ ticket.title }}</a></td></tr>
+    <tr><td>{{ ticket.data.number }}</td><td><a href="{{ ticket.path }}/ticket.html">{{ ticket.data.title }}</a></td></tr>
 {% endfor %}
     </table>
 

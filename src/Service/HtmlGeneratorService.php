@@ -20,11 +20,10 @@ class HtmlGeneratorService implements Generator
     }
 
 
-    public function generateIndex(string $path, string $basepath, array $tickets): void
+    public function generateIndex(string $path, array $tickets): void
     {
         $html = $this->twig->render('index.html.twig', [
             'tickets' => $tickets,
-            'basepath' => $basepath,
         ]);
 
         file_put_contents($path . "/index.html", $html);

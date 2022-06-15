@@ -58,26 +58,34 @@ class ZammadService
 
             $this->output->writeln("* Dumping ticket " . $ticket->getID() . ' : '. $ticket->getValue('title'));
 
-            $ticketPath = $destinationPath . "/". $group->getValue('name') . "/" . $ticket->getValue('number');
-            @mkdir($ticketPath, 0777, true);
-            @mkdir($ticketPath . "/articles", 0777, true);
+            $date = new \DateTime($ticket->getValue('created_at'));
+
+            $ticketPath = $group->getValue('name') . "/";
+            $ticketPath .= $date->format('Y-m') . "/";
+            $ticketPath .= $ticket->getValue('number');
+
+            @mkdir($destinationPath . "/" . $ticketPath, 0777, true);
+            @mkdir($destinationPath . "/" . $ticketPath . "/articles", 0777, true);
 
             // Dump ticket data
             $data = json_encode($ticket->getValues(), JSON_PRETTY_PRINT);
-            file_put_contents($ticketPath . "/ticket.json", $data);
+            file_put_contents($destinationPath . "/" . $ticketPath . "/ticket.json", $data);
 
-            $result['tickets'][] = $ticket->getValues();
+            $result['tickets'][] = [
+                'data' => $ticket->getValues(),
+                'path' => $ticketPath,
+            ];
 
             // Dump tags
             /** @var Tag $tag */
             $tag = $this->client->resource(ResourceType::TAG)->get($ticket->getID(), 'Ticket');
             $tags = $tag->getValue('tags');
-            file_put_contents($ticketPath . "/tags.json", json_encode($tags, JSON_PRETTY_PRINT));
+            file_put_contents($destinationPath . "/" . $ticketPath . "/tags.json", json_encode($tags, JSON_PRETTY_PRINT));
 
             // Dump history
             $history = $this->client->resource(TicketHistory::class)->get($ticket->getID());
             $history = $history->getValues()['history'] ?? [];
-            file_put_contents($ticketPath . "/history.json", json_encode($history, JSON_PRETTY_PRINT));
+            file_put_contents($destinationPath . "/" . $ticketPath . "/history.json", json_encode($history, JSON_PRETTY_PRINT));
 
             // Articles
             $articles = $ticket->getTicketArticles();
@@ -85,7 +93,7 @@ class ZammadService
                 $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
 
                 // Save article data
-                $articlePath = $ticketPath . "/articles/" . $article->getID();
+                $articlePath = $destinationPath . "/" . $ticketPath . "/articles/" . $article->getID();
                 @mkdir($articlePath, 0777, true);
                 file_put_contents($articlePath . "/article.json", $data);
 
@@ -96,10 +104,10 @@ class ZammadService
                 }
             }
 
-            $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
+            $this->generator->generateTicket($destinationPath . "/" . $ticketPath, $ticket, $tags, $history);
         }
 
-        $this->generator->generateIndex($destinationPath, $group->getValue('name')."/", $result['tickets']);
+        $this->generator->generateIndex($destinationPath, $result['tickets']);
     }
 
     public function setOutput(OutputInterface $output)
