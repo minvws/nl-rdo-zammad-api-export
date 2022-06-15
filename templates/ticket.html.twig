@@ -7,18 +7,45 @@
 <body>
     <h1>{{ ticket.number }}: {{ ticket.title }}</h1>
 
-    <table class="pure-table">
+    <table>
+        <tr><th colspan=2>Ticket info</th></tr>
         <tr><td>Created at</td><td>{{ ticket.created_at }}</td></tr>
         <tr><td>Created by</td><td>{{ ticket.owner_id }}</td></tr>
         <tr><td>Articles</td><td>{{ ticket.article_count }}</td></tr>
         <tr><td>Customer</td><td>{{ ticket.customer }}</td></tr>
         <tr><td>Owner</td><td>{{ ticket.owner }}</td></tr>
+        <tr><td>Tags</td><td><ul>{% for tag in tags %}<li>{{ tag }}</li>{% endfor %}</ul></td></tr>
     </table>
+    <br>
+    <br>
+
+    <table>
+        <tr><th colspan=3>History</th></tr>
+{% for state in history%}
+        <tr>
+            <td>{{ state.created_at }}</td>
+            <td>{{ state.object }}</td>
+            <td>{{ state.type }}</td>
+        </tr>
+        {% if state.type == "updated" %}
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>{{ state.attribute }}</td>
+        {% elseif state.value_from != "" or state.value_to != "" %}
+        <tr>
+            <td>&nbsp;</td>
+            <td>{{ state.value_from }}</td>
+            <td>{{ state.value_to }}</td>
+        </tr>
+        {% endif %}
+{% endfor %}
+    </table>
+    <br>
+    <br>
 
 {% for article in articles %}
-    <hr>
-
-    <table class="pure-table">
+    <table>
+        <tr><th colspan=2>Article {{ article.id }}</th></tr>
         <tr><td>Created at</td><td>{{ article.created_at }}</td></tr>
         <tr><td>Created by</td><td>{{ article.created_by }}</td></tr>
         <tr><td>From</td><td>{{ article.from }}</td></tr>
@@ -27,10 +54,32 @@
         <tr><td>Sender</td><td>{{ article.sender }}</td></tr>
         <tr><td>Type</td><td>{{ article.type }}</td></tr>
     </table>
+    <br>
+    <br>
 
-    {{ article.body | raw | nl2br}}
+    <div style="border: 1px solid black; padding: 5px;">
+        {{ article.body | raw | nl2br}}
+    </div>
+    <br>
+    <br>
+
+{% if article.attachments|length%}
+    <table  >
+        <tr><th colspan=2>Attachments</th></tr>
+    {% for attachment in article.attachments %}
+        <tr><td><a href="articles/{{ article.id }}/{{ attachment.filename }}">{{ attachment.filename }}</a></td><td>{{ attachment.size }} bytes</td></tr>
+    {% endfor %}
+    </table>
+    <br>
+    <br>
+{% endif %}
+
 {% endfor %}
 
+    <br>
+    <br>
+    <footer>
     <small>Generated at {{ "now"|date }}</small>
+    </footer>
 </body>
 </html>
