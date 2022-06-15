@@ -30,7 +30,7 @@ class HtmlGeneratorService implements Generator
         file_put_contents($path . "/index.html", $html);
     }
 
-    public function generateTicket(string $path, Ticket $ticket): void
+    public function generateTicket(string $path, Ticket $ticket, array $tags, array $history): void
     {
         $articles = [];
         foreach ($ticket->getTicketArticles() as $article) {
@@ -40,6 +40,8 @@ class HtmlGeneratorService implements Generator
         $html = $this->twig->render('ticket.html.twig', [
             'ticket' => $ticket->getValues(),
             'articles' => $articles,
+            'tags' => $tags,
+            'history' => $history,
         ]);
 
         file_put_contents($path . "/ticket.html", $html);

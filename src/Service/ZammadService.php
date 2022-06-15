@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Service;
 
+use Minvws\Zammad\Resource\TicketHistory;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use ZammadAPIClient\Client;
@@ -73,6 +74,11 @@ class ZammadService
             $tags = $tag->getValue('tags');
             file_put_contents($ticketPath . "/tags.json", json_encode($tags, JSON_PRETTY_PRINT));
 
+            // Dump history
+            $history = $this->client->resource(TicketHistory::class)->get($ticket->getID());
+            $history = $history->getValues()['history'] ?? [];
+            file_put_contents($ticketPath . "/history.json", json_encode($history, JSON_PRETTY_PRINT));
+
             // Articles
             $articles = $ticket->getTicketArticles();
             foreach($articles as $article) {
@@ -90,8 +96,7 @@ class ZammadService
                 }
             }
 
-
-            $this->generator->generateTicket($ticketPath, $ticket);
+            $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
         }
 
         $this->generator->generateIndex($destinationPath, $email."/", $result['tickets']);
