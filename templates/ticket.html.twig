@@ -27,8 +27,20 @@
         <tr><td>Sender</td><td>{{ article.sender }}</td></tr>
         <tr><td>Type</td><td>{{ article.type }}</td></tr>
     </table>
+    <br>
+    <br>
 
-    {{ article.body | raw | nl2br}}
+    <div style="border: 1px solid black; padding: 5px;">
+        {{ article.body | raw | nl2br}}
+    </div>
+
+    <br>
+    <br>
+    <table class="pure-table">
+    {% for attachment in article.attachments %}
+        <tr><td><a href="articles/{{ article.id }}/{{ attachment.filename }}">{{ attachment.filename }}</a></td><td>{{ attachment.size }} bytes</td></tr>
+    {% endfor %}
+    </table>
 {% endfor %}
 
     <small>Generated at {{ "now"|date }}</small>
