@@ -16,9 +16,9 @@
         <tr><td>Owner</td><td>{{ ticket.owner }}</td></tr>
         <tr><td>Tags</td><td><ul>{% for tag in tags %}<li>{{ tag }}</li>{% endfor %}</ul></td></tr>
     </table>
+    <br>
+    <br>
 
-    <br>
-    <br>
     <table>
         <tr><th colspan=3>History</th></tr>
 {% for state in history%}
@@ -44,7 +44,6 @@
     <br>
 
 {% for article in articles %}
-
     <table>
         <tr><th colspan=2>Article {{ article.id }}</th></tr>
         <tr><td>Created at</td><td>{{ article.created_at }}</td></tr>
