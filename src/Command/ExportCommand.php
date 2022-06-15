@@ -28,9 +28,9 @@ class ExportCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('email', InputArgument::REQUIRED, 'Email of user to store tickets')
+            ->addArgument('group', InputArgument::REQUIRED, 'Group name of tickets to export')
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
-            ->setDescription("Exports zammad tickets from user to destination")
+            ->setDescription("Exports Zammad tickets from user to destination")
         ;
     }
 
@@ -38,7 +38,7 @@ class ExportCommand extends Command
     {
         $this->zammadService->setOutput($output);
 
-        $this->zammadService->export($input->getArgument('email'), $input->getArgument('path'));
+        $this->zammadService->export($input->getArgument('group'), $input->getArgument('path'));
         return Command::SUCCESS;
     }
 }

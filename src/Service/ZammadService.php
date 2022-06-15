@@ -8,6 +8,7 @@ use Minvws\Zammad\Resource\TicketHistory;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use ZammadAPIClient\Client;
+use ZammadAPIClient\Resource\Group;
 use ZammadAPIClient\Resource\Tag;
 use ZammadAPIClient\Resource\Ticket;
 use ZammadAPIClient\ResourceType;
@@ -37,17 +38,12 @@ class ZammadService
         ]);
     }
 
-    public function export(string $email, string $destinationPath)
+    public function export(string $group, string $destinationPath)
     {
-        // Fetch user
-        $user = $this->client->resource(ResourceType::USER)->search($email);
-        if (count($user) == 0) {
-            throw new \Exception("User $email not found");
+        $group = $this->getGroup($group);
+        if (!$group) {
+            throw new \Exception("Group $group not found");
         }
-        $user = $user[0];
-
-        // Fetch everything for this user only
-        $this->client->setOnBehalfOfUser($user->getId());
 
         $result = [
             'tickets' => [],
@@ -56,9 +52,13 @@ class ZammadService
         $tickets = $this->client->resource(ResourceType::TICKET)->all();
         foreach ($tickets as $ticket) {
             /** @var Ticket $ticket */
+            if ($ticket->getValue('group_id') != $group->getID()) {
+                continue;
+            }
+
             $this->output->writeln("* Dumping ticket " . $ticket->getID() . ' : '. $ticket->getValue('title'));
 
-            $ticketPath = $destinationPath . "/". $email . "/" . $ticket->getValue('number');
+            $ticketPath = $destinationPath . "/". $group->getValue('name') . "/" . $ticket->getValue('number');
             @mkdir($ticketPath, 0777, true);
             @mkdir($ticketPath . "/articles", 0777, true);
 
@@ -99,11 +99,23 @@ class ZammadService
             $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
         }
 
-        $this->generator->generateIndex($destinationPath, $email."/", $result['tickets']);
+        $this->generator->generateIndex($destinationPath, $group->getValue('name')."/", $result['tickets']);
     }
 
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+    }
+
+    protected function getGroup(string $groupName): ?Group
+    {
+        $groups = $this->client->resource(ResourceType::GROUP)->all();
+        foreach ($groups as $group) {
+            if (strtolower($group->getValue('name')) == strtolower($groupName)) {
+                return $group;
+            }
+        }
+
+        return null;
     }
 }
