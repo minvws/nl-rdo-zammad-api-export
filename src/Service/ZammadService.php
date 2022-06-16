@@ -38,7 +38,7 @@ class ZammadService
         ]);
     }
 
-    public function export(string $group, string $destinationPath)
+    public function export(string $group, string $destinationPath, int $percentage)
     {
         $group = $this->getGroup($group);
         if (!$group) {
@@ -53,6 +53,16 @@ class ZammadService
         foreach ($tickets as $ticket) {
             /** @var Ticket $ticket */
             if ($ticket->getValue('group_id') != $group->getID()) {
+                continue;
+            }
+
+            // Fetch the MD5 of the ticket number (md5 should be evenly distributed). Fetch the first 2 digits to get
+            // a 0..255 value..  use the percentage (ie: 10% = 25, 50% =  128) to check if this ticket needs to be
+            // exported or not
+            $hash = md5($ticket->getValue('number'));
+            $hashValue = hexdec(substr($hash, 0, 2));
+            $minValue = intval($percentage * 2.55);
+            if ($hashValue <= $minValue) {
                 continue;
             }
 
