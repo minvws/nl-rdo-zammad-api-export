@@ -9,6 +9,7 @@ use Minvws\Zammad\Service\ZammadService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportCommand extends Command
@@ -30,6 +31,7 @@ class ExportCommand extends Command
         $this
             ->addArgument('group', InputArgument::REQUIRED, 'Group name of tickets to export')
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
+            ->addOption('percentage', 'p', InputOption::VALUE_OPTIONAL, 'How many tickets will be exported', 10)
             ->setDescription("Exports Zammad tickets from user to destination")
         ;
     }
@@ -38,7 +40,7 @@ class ExportCommand extends Command
     {
         $this->zammadService->setOutput($output);
 
-        $this->zammadService->export($input->getArgument('group'), $input->getArgument('path'));
+        $this->zammadService->export($input->getArgument('group'), $input->getArgument('path'), intval($input->getoption('percentage')));
         return Command::SUCCESS;
     }
 }
