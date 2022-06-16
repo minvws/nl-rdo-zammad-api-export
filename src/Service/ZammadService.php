@@ -61,8 +61,8 @@ class ZammadService
             // exported or not
             $hash = md5($ticket->getValue('number'));
             $hashValue = hexdec(substr($hash, 0, 2));
-            $minValue = intval($percentage * 2.55);
-            if ($hashValue <= $minValue) {
+            $minValue = intval($percentage * 2.55) + 1;
+            if ($hashValue > $minValue) {
                 continue;
             }
 
