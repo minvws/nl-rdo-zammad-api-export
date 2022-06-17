@@ -40,8 +40,8 @@ class ZammadService
 
     public function export(string $group, string $destinationPath, int $percentage)
     {
-        $group = $this->getGroup($group);
-        if (!$group) {
+        $groupdata = $this->getGroup($group);
+        if (!$groupdata) {
             throw new \Exception("Group $group not found");
         }
 
@@ -52,7 +52,7 @@ class ZammadService
         $tickets = $this->client->resource(ResourceType::TICKET)->all();
         foreach ($tickets as $ticket) {
             /** @var Ticket $ticket */
-            if ($ticket->getValue('group_id') != $group->getID()) {
+            if ($ticket->getValue('group_id') != $groupdata->getID()) {
                 continue;
             }
 
@@ -70,7 +70,7 @@ class ZammadService
 
             $date = new \DateTime($ticket->getValue('created_at'));
 
-            $ticketPath = $group->getValue('name') . "/";
+            $ticketPath = $groupdata->getValue('name') . "/";
             $ticketPath .= $date->format('Y-m') . "/";
             $ticketPath .= $ticket->getValue('number');
 
