@@ -26,6 +26,7 @@ class HtmlGeneratorService implements Generator
             'tickets' => $tickets,
         ]);
 
+        @mkdir($path, 0777, true);
         file_put_contents($path . "/index.html", $html);
     }
 
