@@ -41,7 +41,7 @@ time, mark, audio, video {
 body {
     color: var(--text-color);
     margin: 0 auto;
-    max-width: 75ch;
+    max-width: 90vw;
     padding: 0 0.5rem;
 }
 body, input {
