@@ -24,9 +24,10 @@ class ZammadService
      * @param string $url
      * @param string $token
      */
-    public function __construct(string $url, string $token, HtmlGeneratorService $generator)
+    public function __construct(string $url, string $token, HtmlGeneratorService $generator, bool $verbose)
     {
         $this->generator = $generator;
+        $this->verbose = $verbose; // FIXME proper string to bool conversion?
         $this->output = new NullOutput();
 
         $this->client = new Client([
@@ -40,8 +41,8 @@ class ZammadService
 
     public function export(string $group, string $destinationPath, int $percentage)
     {
-        $group = $this->getGroup($group);
-        if (!$group) {
+        $groupdata = $this->getGroup($group);
+        if (!$groupdata) {
             throw new \Exception("Group $group not found");
         }
 
@@ -50,9 +51,15 @@ class ZammadService
         ];
 
         $tickets = $this->client->resource(ResourceType::TICKET)->all();
+        if (empty($tickets) && $this->verbose) {
+          $this->output->writeln("No tickets found from group $group.");
+        }
         foreach ($tickets as $ticket) {
             /** @var Ticket $ticket */
-            if ($ticket->getValue('group_id') != $group->getID()) {
+            if ($ticket->getValue('group_id') != $groupdata->getID()) {
+                if ($this->verbose) {
+                  $this->output->writeln("* Skipping ticket(other group) " . $ticket->getID() . ' : '. $ticket->getValue('title'));
+                }
                 continue;
             }
 
@@ -70,7 +77,7 @@ class ZammadService
 
             $date = new \DateTime($ticket->getValue('created_at'));
 
-            $ticketPath = $group->getValue('name') . "/";
+            $ticketPath = $groupdata->getValue('name') . "/";
             $ticketPath .= $date->format('Y-m') . "/";
             $ticketPath .= $ticket->getValue('number');
 
