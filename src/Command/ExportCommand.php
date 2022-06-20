@@ -29,8 +29,8 @@ class ExportCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('group', InputArgument::REQUIRED, 'Group name of tickets to export')
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
+            ->addOption('group', 'g', InputOption::VALUE_REQUIRED, 'Group name of tickets to export', '')
             ->addOption('percentage', 'p', InputOption::VALUE_OPTIONAL, 'How many tickets will be exported', 10)
             ->setDescription("Exports Zammad tickets from user to destination")
         ;
@@ -40,7 +40,8 @@ class ExportCommand extends Command
     {
         $this->zammadService->setOutput($output);
 
-        $this->zammadService->export($input->getArgument('group'), $input->getArgument('path'), intval($input->getoption('percentage')));
+        $this->zammadService->setVerbose($input->getOption('verbose'));
+        $this->zammadService->export($input->getOption('group'), $input->getArgument('path'), intval($input->getoption('percentage')));
         return Command::SUCCESS;
     }
 }

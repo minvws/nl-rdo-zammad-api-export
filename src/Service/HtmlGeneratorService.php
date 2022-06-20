@@ -27,7 +27,7 @@ class HtmlGeneratorService implements Generator
         ]);
 
         @mkdir($path, 0777, true);
-        file_put_contents($path . "/index.html", $html);
+        file_put_contents($path . "/export-".time().".html", $html);
     }
 
     public function generateTicket(string $path, Ticket $ticket, array $tags, array $history): void

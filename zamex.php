@@ -17,7 +17,7 @@ $loader = new FilesystemLoader('./templates');
 $twigService = new Environment($loader);
 $htmlGenerator = new HtmlGeneratorService($twigService);
 
-$zammadService = new ZammadService($_ENV['ZAMMAD_URL'], $_ENV['ZAMMAD_TOKEN'], $htmlGenerator, $_ENV['ZAMMAD_VERBOSE']);
+$zammadService = new ZammadService($_ENV['ZAMMAD_URL'], $_ENV['ZAMMAD_TOKEN'], $htmlGenerator);
 $exportCommand = new ExportCommand($zammadService);
 
 $application = new Application('Zammad Exporteur DeLuxe', '1.0.0');
