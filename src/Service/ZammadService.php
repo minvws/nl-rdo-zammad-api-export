@@ -18,16 +18,17 @@ class ZammadService
     protected Client $client;
     protected Generator $generator;
     protected OutputInterface $output;
+    protected bool $verbose = false;
 
+    protected array $groupCache = [];
 
     /**
      * @param string $url
      * @param string $token
      */
-    public function __construct(string $url, string $token, HtmlGeneratorService $generator, bool $verbose)
+    public function __construct(string $url, string $token, HtmlGeneratorService $generator)
     {
         $this->generator = $generator;
-        $this->verbose = $verbose; // FIXME proper string to bool conversion?
         $this->output = new NullOutput();
 
         $this->client = new Client([
@@ -39,11 +40,15 @@ class ZammadService
         ]);
     }
 
-    public function export(string $group, string $destinationPath, int $percentage)
+    public function setVerbose(bool $verbose) {
+        $this->verbose = $verbose;
+    }
+
+    public function export(string $groupName, string $destinationPath, int $percentage)
     {
-        $groupdata = $this->getGroup($group);
-        if (!$groupdata) {
-            throw new \Exception("Group $group not found");
+        $group = $this->getGroup($groupName);
+        if (!empty($groupName) && is_null($group)) {
+            throw new \Exception("Group $groupName not found");
         }
 
         $result = [
@@ -52,13 +57,13 @@ class ZammadService
 
         $tickets = $this->client->resource(ResourceType::TICKET)->all();
         if (empty($tickets) && $this->verbose) {
-          $this->output->writeln("No tickets found from group $group.");
+            $this->output->writeln("No tickets found.");
         }
         foreach ($tickets as $ticket) {
             /** @var Ticket $ticket */
-            if ($ticket->getValue('group_id') != $groupdata->getID()) {
+            if ($group && $ticket->getValue('group_id') != $group->getID()) {
                 if ($this->verbose) {
-                  $this->output->writeln("* Skipping ticket(other group) " . $ticket->getID() . ' : '. $ticket->getValue('title'));
+                    $this->output->writeln("* Skipping ticket(other group) " . $ticket->getID() . ' : '. $ticket->getValue('title'));
                 }
                 continue;
             }
@@ -73,13 +78,15 @@ class ZammadService
                 continue;
             }
 
-            $this->output->writeln("* Dumping ticket " . $ticket->getID() . ' : '. $ticket->getValue('title'));
+            $this->output->writeln("* Dumping ticket ".$ticket->getID().' : '.$ticket->getValue('title'));
 
             $date = new \DateTime($ticket->getValue('created_at'));
 
-            $ticketPath = $groupdata->getValue('name') . "/";
+            $ticketGroup = $this->getGroupById($ticket->getValue('group_id'));
+            $ticketPath = $ticketGroup->getValue('name') . "/";
             $ticketPath .= $date->format('Y-m') . "/";
             $ticketPath .= $ticket->getValue('number');
+            $ticketPath = str_replace(":", "_", $ticketPath);
 
             @mkdir($destinationPath . "/" . $ticketPath, 0777, true);
             @mkdir($destinationPath . "/" . $ticketPath . "/articles", 0777, true);
@@ -142,5 +149,20 @@ class ZammadService
         }
 
         return null;
+    }
+
+    protected function getGroupById(int $groupId): ?Group
+    {
+        if (isset($this->groupCache[$groupId])) {
+            return $this->groupCache[$groupId];
+        }
+
+        $group = $this->client->resource(ResourceType::GROUP)->get($groupId);
+        if (!$group) {
+            return null;
+        }
+
+        $this->groupCache[$groupId] = $group;
+        return $group;
     }
 }
