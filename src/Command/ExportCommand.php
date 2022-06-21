@@ -31,7 +31,7 @@ class ExportCommand extends Command
         $this
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
             ->addOption('group', 'g', InputOption::VALUE_REQUIRED, 'Group name of tickets to export', '')
-            ->addOption('percentage', 'p', InputOption::VALUE_OPTIONAL, 'How many tickets will be exported', 10)
+            ->addOption('percentage', 'p', InputOption::VALUE_OPTIONAL, 'Which percentage of tickets should be exported (default 100%)', 100)
             ->setDescription("Exports Zammad tickets from user to destination")
         ;
     }
