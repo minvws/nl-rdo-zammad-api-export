@@ -28,17 +28,17 @@
             <td>{{ state.object }}</td>
             <td>{{ state.type }}</td>
         </tr>
+        <tr>
         {% if state.type == "updated" %}
             <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>{{ state.attribute }}</td>
         {% elseif state.value_from != "" or state.value_to != "" %}
-        <tr>
             <td>&nbsp;</td>
             <td>{{ state.value_from }}</td>
-            <td>{{ state.value_to }}</td>
-        </tr>
+            <td>{{ state.value_to | replace({"(": " ("})}}</td>
         {% endif %}
+        </tr>
 {% endfor %}
     </table>
     <br>
