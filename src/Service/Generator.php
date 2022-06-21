@@ -8,6 +8,7 @@ use ZammadAPIClient\Resource\Ticket;
 
 interface Generator
 {
-    public function generateIndex(string $path, array $tickets): void;
+    public function generateIndex(string $path, array $data): void;
+    public function generateGroupIndex(string $path, array $data): void;
     public function generateTicket(string $path, Ticket $ticket, array $tags, array $history): void;
 }
