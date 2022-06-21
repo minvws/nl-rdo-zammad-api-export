@@ -36,7 +36,7 @@
         {% elseif state.value_from != "" or state.value_to != "" %}
             <td>&nbsp;</td>
             <td>{{ state.value_from }}</td>
-            <td>{{ state.value_to }}</td>
+            <td>{{ state.value_to | replace({"(": " ("})}}</td>
         {% endif %}
         </tr>
 {% endfor %}
