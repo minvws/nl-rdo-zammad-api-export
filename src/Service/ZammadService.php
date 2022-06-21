@@ -47,9 +47,7 @@ class ZammadService
             throw new \Exception("Group $groupName not found");
         }
 
-        $result = [
-            'tickets' => [],
-        ];
+        $result = [];
 
         $page = 1;
         while (true) {
@@ -70,7 +68,11 @@ class ZammadService
             }
             $page++;
         }
-        $this->generator->generateIndex($destinationPath, $result['tickets']);
+
+        foreach ($result as $group) {
+            $this->generator->generateGroupIndex($destinationPath . '/' . $group['path'], $group);
+        }
+        $this->generator->generateIndex($destinationPath, $result);
     }
 
     public function setOutput(OutputInterface $output)
@@ -124,7 +126,16 @@ class ZammadService
         $data = json_encode($ticket->getValues(), JSON_PRETTY_PRINT);
         file_put_contents($destinationPath . "/" . $ticketPath . "/ticket.json", $data);
 
-        $result['tickets'][] = [
+        $ticketGroupName = $ticketGroup->getValue('name');
+        if (! isset($result[$ticketGroupName])) {
+            $ticketGroupNamePath = str_replace(":", "_", $ticketGroupName);
+            $result[$ticketGroupName] = [
+                'tickets' => [],
+                'name' => $ticketGroupName,
+                'path' => $ticketGroupNamePath
+            ];
+        }
+        $result[$ticketGroupName]['tickets'][] = [
             'data' => $ticket->getValues(),
             'path' => $ticketPath,
         ];

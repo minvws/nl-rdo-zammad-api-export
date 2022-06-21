@@ -6,18 +6,13 @@
 
 <body>
 
-    <h1>Zammad Archive</h1>
+    <h1>Zammad Archive - Group {{ group.name }}</h1>
 
-{% for group in data %}
     <table>
-        <tr><th colspan=2><a href="{{ group.path }}/index.html">{{ group.name }}</a></th></tr>
 {% for ticket in group.tickets %}
         <tr><td>{{ ticket.data.number }}</td><td><a href="{{ ticket.path }}/ticket.html">{{ ticket.data.title }}</a></td></tr>
 {% endfor %}
     </table>
-    <br>
-    <br>
-{% endfor %}
 
     <br>
     <br>
