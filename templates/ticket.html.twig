@@ -68,7 +68,7 @@
     <table  >
         <tr><th colspan=2>Attachments</th></tr>
     {% for attachment in article.attachments %}
-        <tr><td><a href="articles/{{ article.id }}/{{ attachment.filename }}">{{ attachment.filename }}</a></td><td>{{ attachment.size }} bytes</td></tr>
+        <tr><td><a href="articles/{{ article.id }}/{{ attachment.filename_sanitized }}">{{ attachment.filename }}</a></td><td>{{ attachment.size }} bytes</td></tr>
     {% endfor %}
     </table>
     <br>

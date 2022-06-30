@@ -168,7 +168,9 @@ class ZammadService
             // Attachments
             foreach($article->getValue('attachments') as $attachment) {
                 $content = $article->getAttachmentContent($attachment['id']);
-                file_put_contents($articlePath . "/". $attachment['filename'], $content);
+                $extension = pathinfo($attachment['filename'], PATHINFO_EXTENSION);
+                $attachment['filename_sanitized'] = sha1($attachment['filename']) . '.' . $extension;
+                file_put_contents($articlePath . "/". $attachment['filename_sanitized'], $content);
             }
         }
 
