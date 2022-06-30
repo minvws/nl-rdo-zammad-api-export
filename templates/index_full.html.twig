@@ -1,0 +1,28 @@
+<html>
+<head>
+    <title>Archive</title>
+    {% include "style.css" %}
+</head>
+
+<body>
+
+    <h1>Zammad Archive</h1>
+
+    <table>
+        <tr><th colspan=2>Full list</th></tr>
+{% for ticket in data %}
+{%   if ticket.exported %}
+        <tr><td>{{ ticket.id }}</td><td>EXPORTED: {{ ticket.title }}</a></td></tr>
+{%   else %}
+        <tr><td>{{ ticket.id }}</td><td>{{ ticket.title }}</td></tr>
+{%   endif %}
+{% endfor %}
+    </table>
+    <br>
+    <br>
+    <footer>
+    <small>Generated at {{ "now"|date }}</small>
+    </footer>
+
+</body>
+</html>

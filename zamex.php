@@ -1,6 +1,14 @@
 #!/usr/bin/env php
 <?php
 
+/**
+ * Zammad export
+ *
+ * Add credentials in the .env file.
+ * The Personal Access Token needs the admin.group, ticket.agent permissions.
+ *
+ * Usage: zamex.php export [--percentage 42] [--group <SomeGroupName>] <output folder>
+ */
 require __DIR__.'/vendor/autoload.php';
 
 use Minvws\Zammad\Service\HtmlGeneratorService;

@@ -48,6 +48,7 @@ class ZammadService
         }
 
         $result = [];
+        $full_results = [];
 
         $page = 1;
         while (true) {
@@ -61,7 +62,9 @@ class ZammadService
             }
 
             foreach ($tickets as $ticket) {
-                if (! $this->shouldExport($ticket, $group, $percentage)) {
+                $do_export = $this->shouldExport($ticket, $group, $percentage);
+                $full_results[] = array( 'id' => $ticket->getID(), 'title' => $ticket->getValue('title'), 'exported' => $do_export);
+                if (!$do_export) {
                     continue;
                 }
                 $result = $this->exportTicket($ticket, $destinationPath, $result);
@@ -73,6 +76,7 @@ class ZammadService
             $this->generator->generateGroupIndex($destinationPath . '/' . $group['path'], $group);
         }
         $this->generator->generateIndex($destinationPath, $result);
+        $this->generator->generateFullIndex($destinationPath, $full_results);
     }
 
     public function setOutput(OutputInterface $output)
