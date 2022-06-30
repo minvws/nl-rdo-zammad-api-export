@@ -30,6 +30,17 @@ class HtmlGeneratorService implements Generator
         file_put_contents($path . "/export-".time().".html", $html);
     }
 
+    public function generateFullIndex(string $path, array $data): void
+    {
+        $html = $this->twig->render('index_full.html.twig', [
+            'data' => $data,
+        ]);
+
+        @mkdir($path, 0777, true);
+        file_put_contents($path . "/export-full-".time().".html", $html);
+    }
+
+
     public function generateGroupIndex(string $path, array $data): void
     {
         $html = $this->twig->render('groupindex.html.twig', [
