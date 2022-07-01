@@ -15,7 +15,8 @@
         "php": "^8.0",
         "zammad/zammad-api-client-php": "^2.0",
         "symfony/console": "^6.1",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+        "indiehd/filename-sanitizer": "^0.1.0"
     },
     "require-dev": {
         "symfony/dotenv": "^6.1"
