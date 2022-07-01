@@ -20,14 +20,18 @@ class HtmlGeneratorService implements Generator
     }
 
 
-    public function generateIndex(string $path, array $data): void
+    public function generateIndex(string $basePath, array $data): void
     {
         $html = $this->twig->render('index.html.twig', [
             'data' => $data,
         ]);
 
+        $basePath = explode("/", $basePath);
+        $path = Sanitize::path($basePath);
         @mkdir($path, 0777, true);
-        file_put_contents($path . "/export-".time().".html", $html);
+
+        $path = Sanitize::path($basePath, "export-".time().".html");
+        file_put_contents($path, $html);
     }
 
     public function generateFullIndex(string $path, array $data): void
@@ -41,17 +45,21 @@ class HtmlGeneratorService implements Generator
     }
 
 
-    public function generateGroupIndex(string $path, array $data): void
+    public function generateGroupIndex(string $basePath, array $data): void
     {
         $html = $this->twig->render('groupindex.html.twig', [
             'group' => $data,
         ]);
 
+        $basePath = explode("/", $basePath);
+        $path = Sanitize::path($basePath);
         @mkdir($path, 0777, true);
-        file_put_contents($path . "/index.html", $html);
+
+        $path = Sanitize::path($basePath, "index.html");
+        file_put_contents($path, $html);
     }
 
-    public function generateTicket(string $path, Ticket $ticket, array $tags, array $history): void
+    public function generateTicket(string $basePath, Ticket $ticket, array $tags, array $history): void
     {
         $articles = [];
         foreach ($ticket->getTicketArticles() as $article) {
@@ -65,6 +73,8 @@ class HtmlGeneratorService implements Generator
             'history' => $history,
         ]);
 
-        file_put_contents($path . "/ticket.html", $html);
+        $basePath = explode("/", $basePath);
+        $path = Sanitize::path($basePath, "ticket.html");
+        file_put_contents($path, $html);
     }
 }

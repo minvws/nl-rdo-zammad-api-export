@@ -26,7 +26,7 @@
         <tr>
             <td>{{ state.created_at }}</td>
             <td>{{ state.object }}</td>
-            <td>{{ state.type }}</td>
+            <td>{{ state.type }} : {{ state.attribute }}</td>
         </tr>
         <tr>
         {% if state.type == "updated" %}
@@ -59,7 +59,7 @@
     <br>
 
     <div style="border: 1px solid black; padding: 5px;">
-        {{ article.body | raw | nl2br}}
+        {{ article.body | raw | nl2br }}
     </div>
     <br>
     <br>
