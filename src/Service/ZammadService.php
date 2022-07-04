@@ -67,7 +67,12 @@ class ZammadService
                 if (!$do_export) {
                     continue;
                 }
-                $result = $this->exportTicket($ticket, $destinationPath, $result);
+
+                try {
+                    $result = $this->exportTicket($ticket, $destinationPath, $result);
+                } catch (\Throwable $e) {
+                    $this->output->writeln("* Error while dumping ticket ".$ticket->getID().' : '.$e->getMessage());
+                }
             }
             $page++;
         }
