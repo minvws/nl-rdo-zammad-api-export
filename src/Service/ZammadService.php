@@ -72,6 +72,8 @@ class ZammadService
                     $result = $this->exportTicket($ticket, $destinationPath, $result);
                 } catch (\Throwable $e) {
                     $this->output->writeln("* Error while dumping ticket ".$ticket->getID().' : '.$e->getMessage());
+                    $this->output->writeln("Export incomplete!");
+                    exit;
                 }
             }
             $page++;
