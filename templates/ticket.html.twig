@@ -68,7 +68,13 @@
     <table  >
         <tr><th colspan=2>Attachments</th></tr>
     {% for attachment in article.attachments %}
-        <tr><td><a href="{{ [ "articles", article.id, attachment.filename ] | sanitize }}">{{ attachment.filename }}</a></td><td>{{ attachment.size }} bytes</td></tr>
+        <tr>
+          <td>
+            <a href="{{ [ "articles", article.id, attachment.filename ] | sanitize }}">{{ attachment.filename }}</a>
+            <span title="WARNING: attachments may contain harmfull content.">&#9888;</span>
+          </td>
+          <td>{{ attachment.size }} bytes</td>
+        </tr>
     {% endfor %}
     </table>
     <br>
