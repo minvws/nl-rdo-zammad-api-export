@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Service;
 
-use IndieHD\FilenameSanitizer\FilenameSanitizer;
-
 class Sanitize {
 
     static function path(...$items) {
