@@ -11,6 +11,7 @@ class Sanitize {
 
         array_walk_recursive($items, function ($item) use (&$path) {
             $sanitizer = new FilenameSanitizer(strval($item));
+            $sanitizer->stripQuotes();
             $sanitizer->stripIllegalFilesystemCharacters();
             $sanitizer->stripRiskyCharacters();
             $path[] = $sanitizer->getFilename();

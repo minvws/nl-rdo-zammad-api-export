@@ -4,12 +4,10 @@ namespace Minvws\Zammad\Service;
 
 class FilenameSanitizer extends \IndieHD\FilenameSanitizer\FilenameSanitizer
 {
-    public function __construct(string $filename)
+    public function stripQuotes(): self
     {
-        $this->illegalCharacters['extra'] = [
-            "'",
-        ];
+        $this->setFilename(str_replace(["'", '"'], '', $this->getFilename()));
 
-        parent::__construct($filename);
+        return $this;
     }
 }
