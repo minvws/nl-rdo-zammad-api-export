@@ -82,8 +82,13 @@ class ZammadService
         foreach ($result as $group) {
             $this->generator->generateGroupIndex(Sanitize::path($destinationPath, $group['path']), $group);
         }
-        $this->generator->generateIndex($destinationPath, $result);
-        $this->generator->generateFullIndex($destinationPath, $full_results);
+        if (!empty($results)) {
+          $this->generator->generateIndex($destinationPath, $result);
+          $this->generator->generateFullIndex($destinationPath, $full_results);
+        }
+        else {
+          $this->output->writeln("NO tickets exported!");
+        }
     }
 
     public function setOutput(OutputInterface $output)
