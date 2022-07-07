@@ -40,7 +40,7 @@ class ZammadService
         $this->verbose = $verbose;
     }
 
-    public function export(string $groupName, string $destinationPath, int $percentage)
+    public function export(string $groupName, string $destinationPath, int $percentage, string $search = '')
     {
         $group = $this->getGroup($groupName);
         if (!empty($groupName) && is_null($group)) {
@@ -56,7 +56,7 @@ class ZammadService
                 $this->output->writeln("Processing page $page");
             }
 
-            $tickets = $this->client->resource(ResourceType::TICKET)->all($page, 100);
+            $tickets = $this->getTickets($page, $search);
             if (count($tickets) == 0) {
                 break;
             }
@@ -89,6 +89,16 @@ class ZammadService
     public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+    }
+
+    protected function getTickets(int $page, string $search = ''): array
+    {
+        $resource = $this->client->resource(ResourceType::TICKET);
+        if (!empty($search)) {
+            return $resource->search($search, $page, 100);
+        }
+
+        return $resource->all($page, 100);
     }
 
     protected function getGroup(string $groupName): ?Group
