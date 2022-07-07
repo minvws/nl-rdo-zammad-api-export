@@ -79,16 +79,17 @@ class ZammadService
             $page++;
         }
 
+        if (count($result) === 0) {
+            $this->output->writeln("No tickets exported!");
+            return;
+        }
+
         foreach ($result as $group) {
             $this->generator->generateGroupIndex(Sanitize::path($destinationPath, $group['path']), $group);
         }
-        if (!empty($results)) {
-          $this->generator->generateIndex($destinationPath, $result);
-          $this->generator->generateFullIndex($destinationPath, $full_results);
-        }
-        else {
-          $this->output->writeln("NO tickets exported!");
-        }
+
+        $this->generator->generateIndex($destinationPath, $result);
+        $this->generator->generateFullIndex($destinationPath, $full_results);
     }
 
     public function setOutput(OutputInterface $output)
