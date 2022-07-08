@@ -184,6 +184,11 @@ class ZammadService
             ->add($date->format('Y-m'))
             ->add($ticket->getValue('number'))
         ;
+        $ticketLink = (new Path(null, $ticketGroup->getValue('name')))
+            ->add($date->format('Y-m'))
+            ->add($ticket->getValue('number'))
+        ;
+
 
         @mkdir($ticketPath->getPath(), 0777, true);
         @mkdir($ticketPath->add('articles')->getPath(), 0777, true);
@@ -202,7 +207,7 @@ class ZammadService
         }
         $result[$ticketGroupName]['tickets'][] = [
             'data' => $ticket->getValues(),
-            'path' => $ticketPath->getPath(),
+            'path' => $ticketLink->getPath(),
         ];
 
         // Dump tags
@@ -227,7 +232,7 @@ class ZammadService
 
             file_put_contents($articlePath->add('article.json')->getPath(), $data);
 
-            // Attachments
+            // Attachments, note we fetch and save attachments since we add a sanitized link to each attachment
             foreach($article->getValue('attachments') as $attachment) {
                 $content = $article->getAttachmentContent($attachment['id']);
                 file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);

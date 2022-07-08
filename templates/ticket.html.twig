@@ -70,7 +70,7 @@
     {% for attachment in article.attachments %}
         <tr>
           <td>
-            <a href="{{ [ "articles", article.id, attachment.filename ] | sanitize }}">{{ attachment.filename }}</a>
+            <a href="{{ "articles/" ~ article.id ~ "/" ~ attachment.filename | sanitize }}">{{ attachment.filename }}</a>
             <span title="WARNING: attachments may contain harmful content.">&#9888;</span>
           </td>
           <td>{{ attachment.size }} bytes</td>

@@ -17,7 +17,7 @@ class SanitizeTwigFilter extends AbstractExtension
         ];
     }
 
-    public function sanitize($items) {
-        return Sanitize::path($items);
+    public function sanitize($path) {
+        return Path::fromString($path)->getPath();
     }
 }
