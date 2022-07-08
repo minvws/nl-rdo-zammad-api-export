@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Service;
 
+use Minvws\Zammad\HTTPClient;
 use Minvws\Zammad\Resource\TicketHistory;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use ZammadAPIClient\Client;
@@ -19,6 +21,7 @@ class ZammadService
     protected Generator $generator;
     protected OutputInterface $output;
     protected bool $verbose = false;
+    protected ?ProgressBar $progressBar;
 
     protected array $groupCache = [];
 
@@ -26,14 +29,24 @@ class ZammadService
     {
         $this->generator = $generator;
         $this->output = new NullOutput();
+        $this->progressBar = null;
 
-        $this->client = new Client([
+        $httpClient = new HttpClient([
             'url' => $url,
             'http_token' => $token,
-            'timeout' => 15,
+            'connect_timeout' => 10,
+            'read_timeout' => 10,
+            'timeout' => 0,
             'debug' => false,
             'verify' => true,
+            'progress' => function ($total, $downloaded) {
+                if ($this->verbose && $this->progressBar) {
+                    $this->progressBar->setProgress($downloaded);
+                }
+            }
         ]);
+
+        $this->client = new Client([], $httpClient);
     }
 
     public function setVerbose(bool $verbose)
@@ -54,6 +67,7 @@ class ZammadService
         $page = 1;
         while (true) {
             if ($this->verbose) {
+                $this->output->writeln("");
                 $this->output->writeln("Processing page $page");
             }
 
@@ -70,11 +84,26 @@ class ZammadService
                 }
 
                 try {
+                    if ($this->verbose) {
+                        $this->output->writeln("* Dumping ticket ".$ticket->getID().' : '.$ticket->getValue('title'));
+
+                        ProgressBar::setFormatDefinition('custom', ' %current% [%bar%] %elapsed:6s% -- %message%');
+                        $this->progressBar = new ProgressBar($this->output);
+                        $this->progressBar->start();
+                        $this->progressBar->setFormat('custom');
+                        $this->progressBar->setMessage('Exporting ticket '.$ticket->getID());
+                    }
+
                     $result = $this->exportTicket($ticket, $destinationPath, $result);
                 } catch (\Throwable $e) {
                     $this->output->writeln("* Error while dumping ticket ".$ticket->getID().' : '.$e->getMessage());
                     $this->output->writeln("Export incomplete!");
                     exit;
+                }
+
+                if ($this->verbose) {
+                    $this->progressBar->finish();
+                    $this->output->writeln("");
                 }
             }
             $page++;
@@ -145,8 +174,6 @@ class ZammadService
 
     protected function exportTicket(Ticket $ticket, string $destinationPath, array $result): array
     {
-        $this->output->writeln("* Dumping ticket ".$ticket->getID().' : '.$ticket->getValue('title'));
-
         $date = new \DateTime($ticket->getValue('created_at'));
 
         $ticketGroup = $this->getGroupById($ticket->getValue('group_id'));
