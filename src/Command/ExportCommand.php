@@ -32,6 +32,7 @@ class ExportCommand extends Command
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
             ->addOption('group', 'g', InputOption::VALUE_REQUIRED, 'Group name of tickets to export', '')
             ->addOption('percentage', 'p', InputOption::VALUE_OPTIONAL, 'Which percentage of tickets should be exported (default 100%)', 100)
+            ->addOption('search', 's', InputOption::VALUE_OPTIONAL, 'Search filter, or more complex query like "created_at:[2022-06-01 TO 2022-06-03]"', '')
             ->setDescription("Exports Zammad tickets from user to destination")
         ;
     }
@@ -41,7 +42,7 @@ class ExportCommand extends Command
         $this->zammadService->setOutput($output);
 
         $this->zammadService->setVerbose($input->getOption('verbose'));
-        $this->zammadService->export($input->getOption('group'), $input->getArgument('path'), intval($input->getoption('percentage')));
+        $this->zammadService->export($input->getOption('group'), $input->getArgument('path'), intval($input->getoption('percentage')), $input->getOption('search'));
         return Command::SUCCESS;
     }
 }
