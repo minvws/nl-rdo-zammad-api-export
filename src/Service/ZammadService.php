@@ -89,7 +89,9 @@ class ZammadService
         }
 
         $this->generator->generateIndex($destinationPath, $result);
-        $this->generator->generateFullIndex($destinationPath, $full_results);
+        if ($percentage < 100) {
+          $this->generator->generateFullIndex($destinationPath, $full_results);
+        }
     }
 
     public function setOutput(OutputInterface $output)
