@@ -57,6 +57,8 @@ class ZammadService
 
     public function export(string $groupName, string $destinationPath, int $percentage, string $search = '')
     {
+        $destPath = Path::fromString($destinationPath);
+            
         $group = $this->getGroup($groupName);
         if (!empty($groupName) && is_null($group)) {
             throw new \Exception("Group $groupName not found");
@@ -95,7 +97,7 @@ class ZammadService
                         $this->progressBar->setMessage('Exporting ticket '.$ticket->getID());
                     }
 
-                    $result = $this->exportTicket($ticket, Path::fromString($destinationPath), $result);
+                    $result = $this->exportTicket($ticket, $destPath, $result);
                 } catch (\Throwable $e) {
                     $this->output->writeln("* Error while dumping ticket ".$ticket->getID().' : '.$e->getMessage());
                     $this->output->writeln("Export incomplete!");
@@ -116,12 +118,12 @@ class ZammadService
         }
 
         foreach ($result as $group) {
-            $this->generator->generateGroupIndex(Path::fromString($destinationPath)->add($group['path']), $group);
+            $this->generator->generateGroupIndex($destPath->add($group['path']), $group);
         }
 
-        $this->generator->generateIndex(Path::fromString($destinationPath), $result);
+        $this->generator->generateIndex($destPath, $result);
         if ($percentage < 100) {
-          $this->generator->generateFullIndex(Path::fromString($destinationPath), $full_results);
+          $this->generator->generateFullIndex($destPath, $full_results);
         }
     }
 
