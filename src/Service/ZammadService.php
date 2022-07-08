@@ -232,7 +232,7 @@ class ZammadService
 
             file_put_contents($articlePath->add('article.json')->getPath(), $data);
 
-            // Attachments, note we fetch and save attachments since we add a sanitized link to each attachment
+            // Attachments
             foreach($article->getValue('attachments') as $attachment) {
                 $content = $article->getAttachmentContent($attachment['id']);
                 file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
