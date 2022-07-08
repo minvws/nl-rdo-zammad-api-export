@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Minvws\Zammad\Service;
 
 use Minvws\Zammad\HTTPClient;
+use Minvws\Zammad\Path;
 use Minvws\Zammad\Resource\TicketHistory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\NullOutput;
@@ -94,7 +95,7 @@ class ZammadService
                         $this->progressBar->setMessage('Exporting ticket '.$ticket->getID());
                     }
 
-                    $result = $this->exportTicket($ticket, $destinationPath, $result);
+                    $result = $this->exportTicket($ticket, Path::fromString($destinationPath), $result);
                 } catch (\Throwable $e) {
                     $this->output->writeln("* Error while dumping ticket ".$ticket->getID().' : '.$e->getMessage());
                     $this->output->writeln("Export incomplete!");
@@ -115,12 +116,12 @@ class ZammadService
         }
 
         foreach ($result as $group) {
-            $this->generator->generateGroupIndex(Sanitize::path($destinationPath, $group['path']), $group);
+            $this->generator->generateGroupIndex(Path::fromString($destinationPath)->add($group['path']), $group);
         }
 
-        $this->generator->generateIndex($destinationPath, $result);
+        $this->generator->generateIndex(Path::fromString($destinationPath), $result);
         if ($percentage < 100) {
-          $this->generator->generateFullIndex($destinationPath, $full_results);
+          $this->generator->generateFullIndex(Path::fromString($destinationPath), $full_results);
         }
     }
 
@@ -172,53 +173,48 @@ class ZammadService
         return $group;
     }
 
-    protected function exportTicket(Ticket $ticket, string $destinationPath, array $result): array
+    protected function exportTicket(Ticket $ticket, Path $basepath, array $result): array
     {
         $date = new \DateTime($ticket->getValue('created_at'));
 
         $ticketGroup = $this->getGroupById($ticket->getValue('group_id'));
 
-        $destinationPath = explode("/", $destinationPath);
-        $ticketPath = [ $ticketGroup->getValue('name') ];
-        $ticketPath[] = $date->format('Y-m');
-        $ticketPath[] = $ticket->getValue('number');
+        $ticketPath = $basepath
+            ->add($ticketGroup->getValue('name'))
+            ->add($date->format('Y-m'))
+            ->add($ticket->getValue('number'))
+        ;
 
-        $path = Sanitize::path($destinationPath, $ticketPath);
-        @mkdir($path, 0777, true);
-        $path = Sanitize::path($destinationPath, $ticketPath, "articles");
-        @mkdir($path, 0777, true);
+        @mkdir($ticketPath->getPath(), 0777, true);
+        @mkdir($ticketPath->add('articles')->getPath(), 0777, true);
 
         // Dump ticket data
         $data = json_encode($ticket->getValues(), JSON_PRETTY_PRINT);
-
-        $path = Sanitize::path($destinationPath, $ticketPath, "ticket.json");
-        file_put_contents($path, $data);
+        file_put_contents($ticketPath->add('ticket.json')->getPath(), $data);
 
         $ticketGroupName = $ticketGroup->getValue('name');
         if (! isset($result[$ticketGroupName])) {
             $result[$ticketGroupName] = [
                 'tickets' => [],
                 'name' => $ticketGroupName,
-                'path' => Sanitize::path($ticketPath, $ticketGroupName),
+                'path' => $ticketPath->add('ticket.json')->add($ticketGroupName)->getPath(),
             ];
         }
         $result[$ticketGroupName]['tickets'][] = [
             'data' => $ticket->getValues(),
-            'path' => Sanitize::path($ticketPath),
+            'path' => $ticketPath->getPath(),
         ];
 
         // Dump tags
         /** @var Tag $tag */
         $tag = $this->client->resource(ResourceType::TAG)->get($ticket->getID(), 'Ticket');
         $tags = $tag->getValue('tags');
-        $path = Sanitize::path($destinationPath, $ticketPath, "tags.json");
-        file_put_contents($path, json_encode($tags, JSON_PRETTY_PRINT));
+        file_put_contents($ticketPath->add('tags.json')->getPath(), json_encode($tags, JSON_PRETTY_PRINT));
 
         // Dump history
         $history = $this->client->resource(TicketHistory::class)->get($ticket->getID());
         $history = $history->getValues()['history'] ?? [];
-        $path = Sanitize::path($destinationPath, $ticketPath, "history.json");
-        file_put_contents($path, json_encode($history, JSON_PRETTY_PRINT));
+        file_put_contents($ticketPath->add('history.json')->getPath(), json_encode($history, JSON_PRETTY_PRINT));
 
         // Articles
         $articles = $ticket->getTicketArticles();
@@ -226,27 +222,19 @@ class ZammadService
             $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
 
             // Save article data
-            $articlePath = [
-                $destinationPath,
-                $ticketPath,
-                "articles",
-                $article->getID()
-            ];
-            $path = Sanitize::path($articlePath);
-            @mkdir($path, 0777, true);
+            $articlePath = $ticketPath->add('articles')->add($article->getID());
+            @mkdir($articlePath->getPath(), 0777, true);
 
-            $path = Sanitize::path($articlePath, "article.json");
-            file_put_contents($path, $data);
+            file_put_contents($articlePath->add('article.json')->getPath(), $data);
 
             // Attachments
             foreach($article->getValue('attachments') as $attachment) {
                 $content = $article->getAttachmentContent($attachment['id']);
-                $path = Sanitize::path($articlePath, $attachment['filename']);
-                file_put_contents($path, $content);
+                file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
             }
         }
 
-        $this->generator->generateTicket(Sanitize::path($destinationPath, $ticketPath), $ticket, $tags, $history);
+        $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
 
         return $result;
     }

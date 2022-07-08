@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Service;
 
+use Minvws\Zammad\Path;
 use Twig\Environment;
 use ZammadAPIClient\Resource\Ticket;
 
@@ -19,46 +20,39 @@ class HtmlGeneratorService implements Generator
         $this->twig = $twig;
     }
 
-    public function generateIndex(string $basePath, array $data): void
+    public function generateIndex(Path $path, array $data): void
     {
         $html = $this->twig->render('index.html.twig', [
             'data' => $data,
         ]);
 
-        $basePath = explode("/", $basePath);
-        $path = Sanitize::path($basePath);
-        @mkdir($path, 0777, true);
+        @mkdir($path->getPath(), 0777, true);
 
-        $path = Sanitize::path($basePath, "export-".time().".html");
-        file_put_contents($path, $html);
+        file_put_contents($path->add("export-".time().".html")->getPath(), $html);
     }
 
-    public function generateFullIndex(string $path, array $data): void
+    public function generateFullIndex(Path $path, array $data): void
     {
         $html = $this->twig->render('index_full.html.twig', [
             'data' => $data,
         ]);
 
-        @mkdir($path, 0777, true);
-        file_put_contents($path . "/export-full-".time().".html", $html);
+        @mkdir($path->getPath(), 0777, true);
+        file_put_contents($path->add("export-full-".time().".html")->getPath(), $html);
     }
 
 
-    public function generateGroupIndex(string $basePath, array $data): void
+    public function generateGroupIndex(Path $path, array $data): void
     {
         $html = $this->twig->render('groupindex.html.twig', [
             'group' => $data,
         ]);
 
-        $basePath = explode("/", $basePath);
-        $path = Sanitize::path($basePath);
-        @mkdir($path, 0777, true);
-
-        $path = Sanitize::path($basePath, "index.html");
-        file_put_contents($path, $html);
+        @mkdir($path->getPath(), 0777, true);
+        file_put_contents($path->add('index.html')->getPath(), $html);
     }
 
-    public function generateTicket(string $basePath, Ticket $ticket, array $tags, array $history): void
+    public function generateTicket(Path $path, Ticket $ticket, array $tags, array $history): void
     {
         $articles = [];
         foreach ($ticket->getTicketArticles() as $article) {
@@ -72,8 +66,6 @@ class HtmlGeneratorService implements Generator
             'history' => $history,
         ]);
 
-        $basePath = explode("/", $basePath);
-        $path = Sanitize::path($basePath, "ticket.html");
-        file_put_contents($path, $html);
+        file_put_contents($path->add('ticket.html')->getPath(), $html);
     }
 }
