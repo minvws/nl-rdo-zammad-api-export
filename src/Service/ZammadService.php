@@ -36,7 +36,8 @@ class ZammadService
         ]);
     }
 
-    public function setVerbose(bool $verbose) {
+    public function setVerbose(bool $verbose)
+    {
         $this->verbose = $verbose;
     }
 
@@ -106,7 +107,13 @@ class ZammadService
             return $resource->search($search, $page, 100);
         }
 
-        return $resource->all($page, 100);
+        $result = $resource->all($page, 100);
+        if ($this->client->getLastResponse()->getStatusCode() >= 400) {
+            $this->output->writeln("Error while fetching ticket. Maybe an incorrect or missing authorization key?");
+            return [];
+        }
+
+        return $result;
     }
 
     protected function getGroup(string $groupName): ?Group
@@ -120,6 +127,7 @@ class ZammadService
 
         return null;
     }
+
     protected function getGroupById(int $groupId): ?Group
     {
         if (isset($this->groupCache[$groupId])) {

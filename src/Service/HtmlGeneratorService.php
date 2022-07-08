@@ -19,7 +19,6 @@ class HtmlGeneratorService implements Generator
         $this->twig = $twig;
     }
 
-
     public function generateIndex(string $basePath, array $data): void
     {
         $html = $this->twig->render('index.html.twig', [
