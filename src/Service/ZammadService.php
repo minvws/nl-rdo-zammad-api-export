@@ -118,7 +118,7 @@ class ZammadService
         }
 
         foreach ($result as $group) {
-            $this->generator->generateGroupIndex($destPath->add($group['path']), $group);
+            $this->generator->generateGroupIndex($group['path'], $group);
         }
 
         $this->generator->generateIndex($destPath, $result);
@@ -204,12 +204,12 @@ class ZammadService
             $result[$ticketGroupName] = [
                 'tickets' => [],
                 'name' => $ticketGroupName,
-                'path' => $ticketPath->add('ticket.json')->add($ticketGroupName)->getPath(),
+                'path' => $basepath->add($ticketGroupName),
             ];
         }
         $result[$ticketGroupName]['tickets'][] = [
             'data' => $ticket->getValues(),
-            'path' => $ticketLink->getPath(),
+            'path' => $ticketLink,
         ];
 
         // Dump tags

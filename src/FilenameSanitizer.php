@@ -1,6 +1,6 @@
 <?php
 
-namespace Minvws\Zammad\Service;
+namespace Minvws\Zammad;
 
 class FilenameSanitizer extends \IndieHD\FilenameSanitizer\FilenameSanitizer
 {
