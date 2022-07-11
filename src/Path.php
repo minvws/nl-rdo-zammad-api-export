@@ -2,8 +2,6 @@
 
 namespace Minvws\Zammad;
 
-use Minvws\Zammad\Service\FilenameSanitizer;
-
 class Path
 {
     protected ?Path $parent;
