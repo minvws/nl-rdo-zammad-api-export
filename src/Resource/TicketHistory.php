@@ -6,7 +6,7 @@ use ZammadAPIClient\Resource\AbstractResource;
 
 class TicketHistory extends AbstractResource
 {
-    const URLS = [
+    public const URLS = [
         'get'    => 'ticket_history/{object_id}',
     ];
 }

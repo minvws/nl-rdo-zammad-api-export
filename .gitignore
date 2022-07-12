@@ -1,3 +1,3 @@
 /vendor/
 .env
-data*
+.phpunit.result.cache

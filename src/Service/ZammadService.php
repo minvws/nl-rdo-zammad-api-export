@@ -11,6 +11,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use ZammadAPIClient\Client;
+use ZammadAPIClient\Client\Response;
 use ZammadAPIClient\Resource\Group;
 use ZammadAPIClient\Resource\Tag;
 use ZammadAPIClient\Resource\Ticket;
@@ -50,15 +51,15 @@ class ZammadService
         $this->client = new Client([], $httpClient);
     }
 
-    public function setVerbose(bool $verbose)
+    public function setVerbose(bool $verbose): void
     {
         $this->verbose = $verbose;
     }
 
-    public function export(string $groupName, string $destinationPath, int $percentage, string $search = '')
+    public function export(string $groupName, string $destinationPath, int $percentage, string $search = ''): void
     {
         $destPath = Path::fromString($destinationPath);
-            
+
         $group = $this->getGroup($groupName);
         if (!empty($groupName) && is_null($group)) {
             throw new \Exception("Group $groupName not found");
@@ -81,31 +82,41 @@ class ZammadService
 
             foreach ($tickets as $ticket) {
                 $do_export = $this->shouldExport($ticket, $group, $percentage);
-                $full_results[] = array( 'id' => $ticket->getID(), 'title' => $ticket->getValue('title'), 'exported' => $do_export);
+                $full_results[] = [
+                    'id' => $ticket->getID(),
+                    'title' => $ticket->getValue('title'),
+                    'exported' => $do_export
+                ];
                 if (!$do_export) {
                     continue;
                 }
 
                 try {
                     if ($this->verbose) {
-                        $this->output->writeln("* Dumping ticket ".$ticket->getID().' : '.$ticket->getValue('title'));
+                        $this->output->writeln(
+                            "* Dumping ticket " . $ticket->getID() . ' : ' . $ticket->getValue('title')
+                        );
 
                         ProgressBar::setFormatDefinition('custom', ' %current% [%bar%] %elapsed:6s% -- %message%');
                         $this->progressBar = new ProgressBar($this->output);
                         $this->progressBar->start();
                         $this->progressBar->setFormat('custom');
-                        $this->progressBar->setMessage('Exporting ticket '.$ticket->getID());
+                        $this->progressBar->setMessage('Exporting ticket ' . $ticket->getID());
                     }
 
                     $result = $this->exportTicket($ticket, $destPath, $result);
                 } catch (\Throwable $e) {
-                    $this->output->writeln("* Error while dumping ticket ".$ticket->getID().' : '.$e->getMessage());
+                    $this->output->writeln(
+                        "* Error while dumping ticket " . $ticket->getID() . ' : ' . $e->getMessage()
+                    );
                     $this->output->writeln("Export incomplete!");
                     exit;
                 }
 
                 if ($this->verbose) {
-                    $this->progressBar->finish();
+                    if ($this->progressBar) {
+                        $this->progressBar->finish();
+                    }
                     $this->output->writeln("");
                 }
             }
@@ -123,24 +134,31 @@ class ZammadService
 
         $this->generator->generateIndex($destPath, $result);
         if ($percentage < 100) {
-          $this->generator->generateFullIndex($destPath, $full_results);
+            $this->generator->generateFullIndex($destPath, $full_results);
         }
     }
 
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
     }
 
+    /**
+     * @psalm-suppress UndefinedDocblockClass
+     */
     protected function getTickets(int $page, string $search = ''): array
     {
+        /** @var Ticket $resource */
         $resource = $this->client->resource(ResourceType::TICKET);
         if (!empty($search)) {
             return $resource->search($search, $page, 100);
         }
 
         $result = $resource->all($page, 100);
-        if ($this->client->getLastResponse()->getStatusCode() >= 400) {
+
+        /** @var Response|null $resp */
+        $resp = $this->client->getLastResponse();
+        if (!$resp || $resp->getStatusCode() >= 400) {
             $this->output->writeln("Error while fetching ticket. Maybe an incorrect or missing authorization key?");
             return [];
         }
@@ -150,7 +168,10 @@ class ZammadService
 
     protected function getGroup(string $groupName): ?Group
     {
-        $groups = $this->client->resource(ResourceType::GROUP)->all();
+        /** @var Group $resource */
+        $resource = $this->client->resource(ResourceType::GROUP);
+        $groups = $resource->all();
+
         foreach ($groups as $group) {
             if (strtolower($group->getValue('name')) == strtolower($groupName)) {
                 return $group;
@@ -166,7 +187,11 @@ class ZammadService
             return $this->groupCache[$groupId];
         }
 
-        $group = $this->client->resource(ResourceType::GROUP)->get($groupId);
+        /** @var Group $resource */
+        $resource = $this->client->resource(ResourceType::GROUP);
+
+        /** @var Group|null $group */
+        $group = $resource->get($groupId);
         if (!$group) {
             return null;
         }
@@ -179,6 +204,7 @@ class ZammadService
     {
         $date = new \DateTime($ticket->getValue('created_at'));
 
+        /** @var Group $ticketGroup */
         $ticketGroup = $this->getGroupById($ticket->getValue('group_id'));
 
         $ticketPath = $basepath
@@ -213,19 +239,25 @@ class ZammadService
         ];
 
         // Dump tags
+
+        /** @var Tag $resource */
+        $resource = $this->client->resource(ResourceType::TAG);
         /** @var Tag $tag */
-        $tag = $this->client->resource(ResourceType::TAG)->get($ticket->getID(), 'Ticket');
+        $tag = $resource->get((int)$ticket->getID(), 'Ticket');
         $tags = $tag->getValue('tags');
         file_put_contents($ticketPath->add('tags.json')->getPath(), json_encode($tags, JSON_PRETTY_PRINT));
 
         // Dump history
-        $history = $this->client->resource(TicketHistory::class)->get($ticket->getID());
+        /** @var TicketHistory $resource */
+        $resource = $this->client->resource(TicketHistory::class);
+        /** @var TicketHistory $history */
+        $history = $resource->get($ticket->getID());
         $history = $history->getValues()['history'] ?? [];
         file_put_contents($ticketPath->add('history.json')->getPath(), json_encode($history, JSON_PRETTY_PRINT));
 
         // Articles
         $articles = $ticket->getTicketArticles();
-        foreach($articles as $article) {
+        foreach ($articles as $article) {
             $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
 
             // Save article data
@@ -235,7 +267,7 @@ class ZammadService
             file_put_contents($articlePath->add('article.json')->getPath(), $data);
 
             // Attachments
-            foreach($article->getValue('attachments') as $attachment) {
+            foreach ($article->getValue('attachments') as $attachment) {
                 $content = $article->getAttachmentContent($attachment['id']);
                 file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
             }
@@ -251,7 +283,9 @@ class ZammadService
         /** @var Ticket $ticket */
         if ($group && $ticket->getValue('group_id') != $group->getID()) {
             if ($this->verbose) {
-                $this->output->writeln("* Skipping ticket(other group) " . $ticket->getID() . ' : '. $ticket->getValue('title'));
+                $this->output->writeln(
+                    "* Skipping ticket(other group) " . $ticket->getID() . ' : ' . $ticket->getValue('title')
+                );
             }
             return false;
         }
