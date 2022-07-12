@@ -5,13 +5,14 @@ namespace Minvws\Zammad;
 class Path
 {
     protected ?Path $parent;
+    protected string $name;
     protected bool $isRoot = false;
 
     /**
      * Constructs a new path based on a previous path (if not the root path). The name will be automatically sanitized
      * When isRoot is true, this will be the root path (can't have a parent on a root node)
      */
-    public function __construct(?Path $parent, string $name, $isRoot = false)
+    public function __construct(?Path $parent, string $name, bool $isRoot = false)
     {
         if ($isRoot && $parent) {
             throw new \Exception("Cannot be root when you have a parent directory");
@@ -29,7 +30,7 @@ class Path
     {
         // Make sure we start with a root node when our string starts with /
         $isRoot = false;
-        if (str_starts_with('/', $fullPath)) {
+        if (str_starts_with($fullPath, "/")) {
             $isRoot = true;
             $fullPath = substr($fullPath, 1);
         }
@@ -77,7 +78,7 @@ class Path
         return $this->getPath();
     }
 
-    protected function sanitize(string $name)
+    protected function sanitize(string $name): string
     {
         $sanitizer = new FilenameSanitizer($name);
         $sanitizer->stripAdditionalCharacters();
@@ -86,6 +87,4 @@ class Path
 
         return $sanitizer->getFilename();
     }
-
-
 }

@@ -28,7 +28,7 @@ class HtmlGeneratorService implements Generator
 
         @mkdir($path->getPath(), 0777, true);
 
-        file_put_contents($path->add("export-".time().".html")->getPath(), $html);
+        file_put_contents($path->add("export-" . time() . ".html")->getPath(), $html);
     }
 
     public function generateFullIndex(Path $path, array $data): void
@@ -38,7 +38,7 @@ class HtmlGeneratorService implements Generator
         ]);
 
         @mkdir($path->getPath(), 0777, true);
-        file_put_contents($path->add("export-full-".time().".html")->getPath(), $html);
+        file_put_contents($path->add("export-full-" . time() . ".html")->getPath(), $html);
     }
 
 
