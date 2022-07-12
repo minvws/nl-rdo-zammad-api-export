@@ -38,7 +38,5 @@ jobs:
               run: vendor/bin/phpstan analyse
             - name: Static analysis with PHPStan
               run: vendor/bin/psalm
-            - name: Mess detection
-              run: vendor/bin/phpmd
             - name: Execute tests (Unit and Feature)
               run: vendor/bin/phpunit
