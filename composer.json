@@ -20,15 +20,23 @@
       "email": "rick@rl-webdiensten.nl"
     }
   ],
+  "config": {
+      "platform": {
+         "php": "8.0.2"
+      },
+      "optimize-autoloader": true,
+      "preferred-install": "dist",
+      "sort-packages": true
+  },
   "require": {
     "php": "^8.0.2",
     "zammad/zammad-api-client-php": "dev-client",
-    "symfony/console": "^6.1",
+    "symfony/console": "^6.0",
+    "symfony/dotenv": "^6.0",
     "twig/twig": "^3.0",
     "indiehd/filename-sanitizer": "^0.1.0"
   },
   "require-dev": {
-    "symfony/dotenv": "^6.1",
     "phpunit/phpunit": "^9.5",
     "vimeo/psalm": "^4.23",
     "phpstan/phpstan": "^1.7",
