@@ -1,30 +1,52 @@
 {
-    "name": "minvws/nl-rdo-zammad-api-export",
-    "autoload": {
-        "psr-4": {
-            "Minvws\\Zammad\\": "src/"
-        }
+  "name": "minvws/nl-rdo-zammad-api-export",
+  "description": "Zammad ticket export",
+  "license": "EUPL",
+  "keywords": [
+    "zammad"
+  ],
+  "autoload": {
+    "psr-4": {
+      "Minvws\\Zammad\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Joshua Thijssen",
+      "email": "jthijssen@noxlogic.nl"
     },
-    "authors": [
-        {
-            "name": "Joshua Thijssen",
-            "email": "jthijssen@noxlogic.nl"
-        }
-    ],
-    "require": {
-        "php": "^8.0",
-        "zammad/zammad-api-client-php": "dev-client",
-        "symfony/console": "^6.1",
-        "twig/twig": "^3.0",
-        "indiehd/filename-sanitizer": "^0.1.0"
-    },
-    "require-dev": {
-        "symfony/dotenv": "^6.1"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url":  "git@github.com:jaytaph/zammad-api-client-php.git"
-        }
+    {
+      "name": "Rick Lambrechts",
+      "email": "rick@rl-webdiensten.nl"
+    }
+  ],
+  "require": {
+    "php": "^8.0.2",
+    "zammad/zammad-api-client-php": "dev-client",
+    "symfony/console": "^6.1",
+    "twig/twig": "^3.0",
+    "indiehd/filename-sanitizer": "^0.1.0"
+  },
+  "require-dev": {
+    "symfony/dotenv": "^6.1",
+    "phpunit/phpunit": "^9.5",
+    "vimeo/psalm": "^4.23",
+    "phpstan/phpstan": "^1.7",
+    "squizlabs/php_codesniffer": "^3.6",
+    "mockery/mockery": "^1.4.3"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:jaytaph/zammad-api-client-php.git"
+    }
+  ],
+  "scripts": {
+    "test": [
+      "vendor/bin/phpcs",
+      "vendor/bin/phpunit",
+      "vendor/bin/phpstan analyse",
+      "vendor/bin/psalm"
     ]
+  }
 }
