@@ -282,7 +282,8 @@ class ZammadService
 
     protected function shouldExport(mixed $ticket, array $groups, int $percentage): bool
     {
-        if (! $this->inIncludeGroup($ticket->getValue('group_id'), $groups) ||
+        if (
+            ! $this->inIncludeGroup($ticket->getValue('group_id'), $groups) ||
             $this->inExcludeGroup($ticket->getValue('group_id'), $groups)
         ) {
             /** @var Ticket $ticket */
@@ -335,7 +336,7 @@ class ZammadService
         return $groups;
     }
 
-    protected function inIncludeGroup($id, array $groups): bool
+    protected function inIncludeGroup(string $id, array $groups): bool
     {
         if (count($groups['include']) == 0) {
             // No include groups means all groups
@@ -351,7 +352,7 @@ class ZammadService
         return false;
     }
 
-    protected function inExcludeGroup($id, array $groups): bool
+    protected function inExcludeGroup(string $id, array $groups): bool
     {
         foreach ($groups['exclude'] as $group) {
             if ($group->getId() == $id) {
