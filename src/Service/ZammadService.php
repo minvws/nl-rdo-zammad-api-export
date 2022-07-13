@@ -56,14 +56,16 @@ class ZammadService
         $this->verbose = $verbose;
     }
 
-    public function export(string $groupName, string $destinationPath, int $percentage, string $search = ''): void
-    {
+    public function export(
+        array $groupNames,
+        array $excludeGroupNames,
+        string $destinationPath,
+        int $percentage,
+        string $search = ''
+    ): void {
         $destPath = Path::fromString($destinationPath);
 
-        $group = $this->getGroup($groupName);
-        if (!empty($groupName) && is_null($group)) {
-            throw new \Exception("Group $groupName not found");
-        }
+        $groups = $this->fetchGroups($groupNames, $excludeGroupNames);
 
         $result = [];
         $full_results = [];
@@ -81,7 +83,7 @@ class ZammadService
             }
 
             foreach ($tickets as $ticket) {
-                $do_export = $this->shouldExport($ticket, $group, $percentage);
+                $do_export = $this->shouldExport($ticket, $groups, $percentage);
                 $full_results[] = [
                     'id' => $ticket->getID(),
                     'title' => $ticket->getValue('title'),
@@ -278,10 +280,13 @@ class ZammadService
         return $result;
     }
 
-    protected function shouldExport(mixed $ticket, ?Group $group, int $percentage): bool
+    protected function shouldExport(mixed $ticket, array $groups, int $percentage): bool
     {
-        /** @var Ticket $ticket */
-        if ($group && $ticket->getValue('group_id') != $group->getID()) {
+        if (
+            ! $this->inIncludeGroup($ticket->getValue('group_id'), $groups) ||
+            $this->inExcludeGroup($ticket->getValue('group_id'), $groups)
+        ) {
+            /** @var Ticket $ticket */
             if ($this->verbose) {
                 $this->output->writeln(
                     "* Skipping ticket(other group) " . $ticket->getID() . ' : ' . $ticket->getValue('title')
@@ -301,5 +306,60 @@ class ZammadService
         }
 
         return true;
+    }
+
+    /**
+     * @param string[] $groupNames
+     * @param string[] $excludeGroupNames
+     */
+    protected function fetchGroups(array $groupNames, array $excludeGroupNames): array
+    {
+        $groups = [
+            'include' => [],
+            'exclude' => [],
+        ];
+
+        foreach ($groupNames as $groupName) {
+            $group = $this->getGroup($groupName);
+            if (!is_null($group)) {
+                $groups['include'][] = $group;
+            }
+        }
+
+        foreach ($excludeGroupNames as $groupName) {
+            $group = $this->getGroup($groupName);
+            if (!is_null($group)) {
+                $groups['exclude'][] = $group;
+            }
+        }
+
+        return $groups;
+    }
+
+    protected function inIncludeGroup(string $id, array $groups): bool
+    {
+        if (count($groups['include']) == 0) {
+            // No include groups means all groups
+            return true;
+        }
+
+        foreach ($groups['include'] as $group) {
+            if ($group->getId() == $id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function inExcludeGroup(string $id, array $groups): bool
+    {
+        foreach ($groups['exclude'] as $group) {
+            if ($group->getId() == $id) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

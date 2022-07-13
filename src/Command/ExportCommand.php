@@ -30,7 +30,20 @@ class ExportCommand extends Command
     {
         $this
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
-            ->addOption('group', 'g', InputOption::VALUE_REQUIRED, 'Group name of tickets to export', '')
+            ->addOption(
+                'group',
+                'g',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Group name of tickets to export',
+                []
+            )
+            ->addOption(
+                'exclude-group',
+                'x',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Group name of tickets to exclude in the export',
+                []
+            )
             ->addOption(
                 'percentage',
                 'p',
@@ -55,7 +68,8 @@ class ExportCommand extends Command
 
         $this->zammadService->setVerbose($input->getOption('verbose'));
         $this->zammadService->export(
-            $input->getOption('group'),
+            $input->getOption('groups'),
+            $input->getOption('exclude-groups'),
             $input->getArgument('path'),
             intval($input->getoption('percentage')),
             $input->getOption('search')
