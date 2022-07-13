@@ -283,8 +283,8 @@ class ZammadService
     protected function shouldExport(mixed $ticket, array $groups, int $percentage): bool
     {
         if (
-            ! $this->inIncludeGroup($ticket->getValue('group_id'), $groups) ||
-            $this->inExcludeGroup($ticket->getValue('group_id'), $groups)
+            ! $this->inIncludeGroup(strval($ticket->getValue('group_id')), $groups) ||
+            $this->inExcludeGroup(strval($ticket->getValue('group_id')), $groups)
         ) {
             /** @var Ticket $ticket */
             if ($this->verbose) {

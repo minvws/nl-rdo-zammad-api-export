@@ -68,8 +68,8 @@ class ExportCommand extends Command
 
         $this->zammadService->setVerbose($input->getOption('verbose'));
         $this->zammadService->export(
-            $input->getOption('groups'),
-            $input->getOption('exclude-groups'),
+            $input->getOption('group'),
+            $input->getOption('exclude-group'),
             $input->getArgument('path'),
             intval($input->getoption('percentage')),
             $input->getOption('search')
