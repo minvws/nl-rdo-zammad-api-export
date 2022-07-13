@@ -31,14 +31,14 @@ class ExportCommand extends Command
         $this
             ->addArgument('path', InputArgument::REQUIRED, 'Path to store to')
             ->addOption(
-                'group',
+                'groups',
                 'g',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Group name of tickets to export',
                 []
             )
             ->addOption(
-                'exclude-group',
+                'exclude-groups',
                 'x',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Group name of tickets to exclude in the export',
