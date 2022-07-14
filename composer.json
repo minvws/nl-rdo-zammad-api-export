@@ -10,6 +10,11 @@
       "Minvws\\Zammad\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "MinVWS\\Zammad\\Tests\\": "tests/"
+    }
+  },
   "authors": [
     {
       "name": "Joshua Thijssen",
