@@ -1,13 +1,15 @@
 <?php
 
+namespace Minvws\Zammad\Tests;
+
 use Minvws\Zammad\Path;
 use PHPUnit\Framework\TestCase;
 
-class PathTest extends TestCase {
-
+class PathTest extends TestCase
+{
     public function testRootWithNonRoot()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         new Path(new Path(null, "foo"), "bar", true);
     }
 
