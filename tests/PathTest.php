@@ -1,6 +1,6 @@
 <?php
 
-namespace Minvws\Zammad\Tests;
+namespace MinVWS\Zammad\Tests;
 
 use Minvws\Zammad\Path;
 use PHPUnit\Framework\TestCase;
