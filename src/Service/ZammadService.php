@@ -206,76 +206,83 @@ class ZammadService
     {
         $date = new \DateTime($ticket->getValue('created_at'));
 
-        /** @var Group $ticketGroup */
-        $ticketGroup = $this->getGroupById($ticket->getValue('group_id'));
-
-        $ticketPath = $basepath
-            ->add($ticketGroup->getValue('name'))
-            ->add($date->format('Y-m'))
-            ->add($ticket->getValue('number'))
-        ;
-        $ticketLink = (new Path(null, $ticketGroup->getValue('name')))
-            ->add($date->format('Y-m'))
-            ->add($ticket->getValue('number'))
-        ;
-
-
-        @mkdir($ticketPath->getPath(), 0777, true);
-        @mkdir($ticketPath->add('articles')->getPath(), 0777, true);
-
-        // Dump ticket data
-        $data = json_encode($ticket->getValues(), JSON_PRETTY_PRINT);
-        file_put_contents($ticketPath->add('ticket.json')->getPath(), $data);
-
-        $ticketGroupName = $ticketGroup->getValue('name');
-        if (! isset($result[$ticketGroupName])) {
-            $result[$ticketGroupName] = [
-                'tickets' => [],
-                'name' => $ticketGroupName,
-                'path' => $basepath->add($ticketGroupName),
-            ];
+        $contentClasses = $ticket->getValue('content_class');
+        if (!$contentClasses) {
+            $contentClasses = [""];
         }
-        $result[$ticketGroupName]['tickets'][] = [
-            'data' => $ticket->getValues(),
-            'path' => $ticketLink,
-        ];
 
-        // Dump tags
+        foreach ($contentClasses as $contentClass) {
+            /** @var Group $ticketGroup */
+            $ticketGroup = $this->getGroupById($ticket->getValue('group_id'));
 
-        /** @var Tag $resource */
-        $resource = $this->client->resource(ResourceType::TAG);
-        /** @var Tag $tag */
-        $tag = $resource->get((int)$ticket->getID(), 'Ticket');
-        $tags = $tag->getValue('tags');
-        file_put_contents($ticketPath->add('tags.json')->getPath(), json_encode($tags, JSON_PRETTY_PRINT));
+            $ticketPath = $basepath
+                ->add($ticketGroup->getValue('name'))
+                ->add($contentClass)
+                ->add($date->format('Y-m'))
+                ->add($ticket->getValue('number'));
+            $ticketLink = (new Path(null, $ticketGroup->getValue('name')))
+                ->add($contentClass)
+                ->add($date->format('Y-m'))
+                ->add($ticket->getValue('number'));
 
-        // Dump history
-        /** @var TicketHistory $resource */
-        $resource = $this->client->resource(TicketHistory::class);
-        /** @var TicketHistory $history */
-        $history = $resource->get($ticket->getID());
-        $history = $history->getValues()['history'] ?? [];
-        file_put_contents($ticketPath->add('history.json')->getPath(), json_encode($history, JSON_PRETTY_PRINT));
 
-        // Articles
-        $articles = $ticket->getTicketArticles();
-        foreach ($articles as $article) {
-            $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
+            @mkdir($ticketPath->getPath(), 0777, true);
+            @mkdir($ticketPath->add('articles')->getPath(), 0777, true);
 
-            // Save article data
-            $articlePath = $ticketPath->add('articles')->add($article->getID());
-            @mkdir($articlePath->getPath(), 0777, true);
+            // Dump ticket data
+            $data = json_encode($ticket->getValues(), JSON_PRETTY_PRINT);
+            file_put_contents($ticketPath->add('ticket.json')->getPath(), $data);
 
-            file_put_contents($articlePath->add('article.json')->getPath(), $data);
-
-            // Attachments
-            foreach ($article->getValue('attachments') as $attachment) {
-                $content = $article->getAttachmentContent($attachment['id']);
-                file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
+            $ticketGroupName = $ticketGroup->getValue('name');
+            if (!isset($result[$ticketGroupName])) {
+                $result[$ticketGroupName] = [
+                    'tickets' => [],
+                    'name' => $ticketGroupName,
+                    'path' => $basepath->add($ticketGroupName),
+                ];
             }
-        }
+            $result[$ticketGroupName]['tickets'][] = [
+                'data' => $ticket->getValues(),
+                'path' => $ticketLink,
+            ];
 
-        $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
+            // Dump tags
+
+            /** @var Tag $resource */
+            $resource = $this->client->resource(ResourceType::TAG);
+            /** @var Tag $tag */
+            $tag = $resource->get((int)$ticket->getID(), 'Ticket');
+            $tags = $tag->getValue('tags');
+            file_put_contents($ticketPath->add('tags.json')->getPath(), json_encode($tags, JSON_PRETTY_PRINT));
+
+            // Dump history
+            /** @var TicketHistory $resource */
+            $resource = $this->client->resource(TicketHistory::class);
+            /** @var TicketHistory $history */
+            $history = $resource->get($ticket->getID());
+            $history = $history->getValues()['history'] ?? [];
+            file_put_contents($ticketPath->add('history.json')->getPath(), json_encode($history, JSON_PRETTY_PRINT));
+
+            // Articles
+            $articles = $ticket->getTicketArticles();
+            foreach ($articles as $article) {
+                $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
+
+                // Save article data
+                $articlePath = $ticketPath->add('articles')->add($article->getID());
+                @mkdir($articlePath->getPath(), 0777, true);
+
+                file_put_contents($articlePath->add('article.json')->getPath(), $data);
+
+                // Attachments
+                foreach ($article->getValue('attachments') as $attachment) {
+                    $content = $article->getAttachmentContent($attachment['id']);
+                    file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
+                }
+            }
+
+            $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
+        }
 
         return $result;
     }
