@@ -13,3 +13,13 @@ many tickets to export. Note that ticket exports are deterministic (always the s
 be exported), and defaults to 100%. 
 
 Verbose option displays more info.
+
+## Contribution
+
+If you plan to make non-trivial changes, we recommend to open an issue beforehand where we can discuss your planned changes. This increases the chance that we might be able to use your contribution (or it avoids doing work if there are reasons why we wouldn't be able to use it).
+
+Git commits must be signed https://docs.github.com/en/github/authenticating-to-github/signing-commits
+
+## License
+
+License is released under the EUPL 1.2 license. [See LICENSE](LICENSE.txt) for details.
