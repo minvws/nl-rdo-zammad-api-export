@@ -69,6 +69,8 @@ class HTTPClient extends Client implements HTTPClientInterface
 
         try {
             $response = parent::request($method, $uri, $options);
+        } catch (\GuzzleHttp\Exception\TransferException $e) {
+            $response = $e->getResponse();
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
             $response = new Response();
         }
