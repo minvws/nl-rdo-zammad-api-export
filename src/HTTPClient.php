@@ -3,7 +3,8 @@
 namespace Minvws\Zammad;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\TransferException;
 use Psr\Http\Message\ResponseInterface;
 use ZammadAPIClient\HTTPClientInterface;
 
@@ -46,6 +47,7 @@ class HTTPClient extends Client implements HTTPClientInterface
 
     /**
      * @psalm-suppress MethodSignatureMismatch
+     * @throws GuzzleException
      */
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
@@ -69,10 +71,15 @@ class HTTPClient extends Client implements HTTPClientInterface
 
         try {
             $response = parent::request($method, $uri, $options);
-        } catch (\GuzzleHttp\Exception\TransferException $e) {
-            $response = $e->getResponse();
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-            $response = new Response();
+        } catch (TransferException $e) {
+            if (
+                method_exists($e, 'hasResponse')
+                && method_exists($e, 'getResponse')
+                && $e->hasResponse()
+            ) {
+                return $e->getResponse();
+            }
+            throw $e;
         }
 
         return $response;
