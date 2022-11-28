@@ -79,6 +79,10 @@ class ZammadService
 
             $tickets = $this->getTickets($page, $search);
             if (count($tickets) == 0) {
+                if ($this->verbose) {
+                    $this->output->writeln("");
+                    $this->output->writeln("No tickets found on page $page");
+                }
                 break;
             }
 
@@ -137,6 +141,11 @@ class ZammadService
         $this->generator->generateIndex($destPath, $result);
         if ($percentage < 100) {
             $this->generator->generateFullIndex($destPath, $full_results);
+        }
+
+        if ($this->verbose) {
+            $this->output->writeln("");
+            $this->output->writeln("Done!");
         }
     }
 
