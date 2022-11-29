@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace Minvws\Zammad\Service;
 
+use DateTime;
+use Exception;
 use Minvws\Zammad\HTTPClient;
 use Minvws\Zammad\Path;
 use Minvws\Zammad\Resource\TicketHistory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 use ZammadAPIClient\Client;
 use ZammadAPIClient\Client\Response;
 use ZammadAPIClient\Resource\Group;
 use ZammadAPIClient\Resource\Tag;
 use ZammadAPIClient\Resource\Ticket;
+use ZammadAPIClient\Resource\TicketArticle;
 use ZammadAPIClient\ResourceType;
 
 class ZammadService
@@ -79,6 +83,10 @@ class ZammadService
 
             $tickets = $this->getTickets($page, $search);
             if (count($tickets) == 0) {
+                if ($this->verbose) {
+                    $this->output->writeln("");
+                    $this->output->writeln("No tickets found on page $page");
+                }
                 break;
             }
 
@@ -107,7 +115,7 @@ class ZammadService
                     }
 
                     $result = $this->exportTicket($ticket, $destPath, $result);
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $this->output->writeln(
                         "* Error while dumping ticket " . $ticket->getID() . ' : ' . $e->getMessage()
                     );
@@ -137,6 +145,11 @@ class ZammadService
         $this->generator->generateIndex($destPath, $result);
         if ($percentage < 100) {
             $this->generator->generateFullIndex($destPath, $full_results);
+        }
+
+        if ($this->verbose) {
+            $this->output->writeln("");
+            $this->output->writeln("Done!");
         }
     }
 
@@ -204,7 +217,7 @@ class ZammadService
 
     protected function exportTicket(Ticket $ticket, Path $basepath, array $result): array
     {
-        $date = new \DateTime($ticket->getValue('created_at'));
+        $date = new DateTime($ticket->getValue('created_at'));
 
         $contentClasses = $ticket->getValue('content_class');
         if (!$contentClasses) {
@@ -247,24 +260,22 @@ class ZammadService
             ];
 
             // Dump tags
-
-            /** @var Tag $resource */
-            $resource = $this->client->resource(ResourceType::TAG);
-            /** @var Tag $tag */
-            $tag = $resource->get((int)$ticket->getID(), 'Ticket');
-            $tags = $tag->getValue('tags');
+            $tags = $this->getTagsForTicketId((int) $ticket->getID());
             file_put_contents($ticketPath->add('tags.json')->getPath(), json_encode($tags, JSON_PRETTY_PRINT));
 
             // Dump history
-            /** @var TicketHistory $resource */
-            $resource = $this->client->resource(TicketHistory::class);
-            /** @var TicketHistory $history */
-            $history = $resource->get($ticket->getID());
-            $history = $history->getValues()['history'] ?? [];
+            $history = $this->getTicketHistoryForTicketId((int) $ticket->getID());
             file_put_contents($ticketPath->add('history.json')->getPath(), json_encode($history, JSON_PRETTY_PRINT));
 
             // Articles
+            /** @var TicketArticle[] $articles */
             $articles = $ticket->getTicketArticles();
+            if ($ticket->getError()) {
+                $this->outputWhileProgressbar(
+                    "Error while loading ticket articles for ticket {$ticket->getID()}: {$ticket->getError()}"
+                );
+            }
+
             foreach ($articles as $article) {
                 $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
 
@@ -276,7 +287,18 @@ class ZammadService
 
                 // Attachments
                 foreach ($article->getValue('attachments') as $attachment) {
-                    $content = $article->getAttachmentContent($attachment['id']);
+                    try {
+                        $content = $article->getAttachmentContent($attachment['id']);
+                        if (!$content) {
+                            throw new Exception('Could not get attachment content');
+                        }
+                    } catch (Exception $e) {
+                        $this->outputWhileProgressbar(
+                            "Error while loading attachment content for attachment " .
+                            "{$attachment['id']} of ticket {$ticket->getID()}: {$e->getMessage()}"
+                        );
+                        continue;
+                    }
                     file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
                 }
             }
@@ -368,5 +390,42 @@ class ZammadService
         }
 
         return false;
+    }
+
+    protected function outputWhileProgressbar(string $output): void
+    {
+        $this->progressBar?->clear();
+        $this->output->writeln($output);
+        $this->progressBar?->display();
+    }
+
+    protected function getTagsForTicketId(int $id): array
+    {
+        /** @var Tag $resource */
+        $resource = $this->client->resource(ResourceType::TAG);
+
+        /** @var Tag $tag */
+        $tag = $resource->get($id);
+
+        if ($tag->getError()) {
+            $this->outputWhileProgressbar("Error while loading tags for ticket $id: {$tag->getError()}");
+            return [];
+        }
+        return $tag->getValue('tags');
+    }
+
+    protected function getTicketHistoryForTicketId(int $id): array
+    {
+        /** @var TicketHistory $resource */
+        $resource = $this->client->resource(TicketHistory::class);
+
+        /** @var TicketHistory $history */
+        $history = $resource->get($id);
+        if ($history->getError()) {
+            $this->outputWhileProgressbar("Error while loading history for ticket $id: {$history->getError()}");
+            return [];
+        }
+
+        return $history->getValues()['history'] ?? [];
     }
 }
