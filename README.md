@@ -1,16 +1,40 @@
-# nl-rdo-zammad-api-export
+# Zammad Ticket Export
 
-Usage:
+This can be used to export tickets from [Zammad](https://zammad.org) to PDF.
+Each ticket will have it own PDF file.
+
+This is not intended as a backup or restore solution only intended for archiving tickets.
+
+You should not host this script at a location that is publicly available. 
+
+## Installation
+
+- Clone or download this project
+- Run composer install:
+    ```
+    composer install --prefer-dist --no-interaction
+    ```
+- Copy .env.example to .env
+- Create personal access token with the following permissions in Zammad
+    - admin.group
+    - admin.ticket
+    - admin.tag
+    - ticket.agent or ticket.customer
+- Set Zammad url and token in .env
+
+## Usage
+
+Run:
 
      php zamex.php export <path> [--percentage|-p <percentage>] [--group|-g <group>] [--exclude-group|-x <group>] [--verbose|-v]
 
 where `group` is the zammad group to export, or leave empty when all groups need to be exported.
-You can use multiple groups. `exclude-group` allows you to exclude certain groups (only makes sense 
+You can use multiple groups. `--exclude-group` allows you to exclude certain groups (only makes sense
 without a `--group` option). It is allowed to have multiple as well.
 
-`path` the actual path to store the ticket exports, and `--percentage` an optional value of how 
-many tickets to export. Note that ticket exports are deterministic (always the same tickets will 
-be exported), and defaults to 100%. 
+`path` the actual path to store the ticket exports, and `--percentage` an optional value of how
+many tickets to export. Note that ticket exports are deterministic (always the same tickets will
+be exported), and defaults to 100%.
 
 Verbose option displays more info.
 
