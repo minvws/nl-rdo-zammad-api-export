@@ -271,7 +271,9 @@ class ZammadService
             /** @var TicketArticle[] $articles */
             $articles = $ticket->getTicketArticles();
             if ($ticket->getError()) {
-                $this->outputWhileProgressbar("Error while loading ticket articles for ticket {$ticket->getID()}: {$ticket->getError()}");
+                $this->outputWhileProgressbar(
+                    "Error while loading ticket articles for ticket {$ticket->getID()}: {$ticket->getError()}"
+                );
             }
 
             foreach ($articles as $article) {
@@ -291,7 +293,10 @@ class ZammadService
                             throw new Exception('Could not get attachment content');
                         }
                     } catch (Exception $e) {
-                        $this->outputWhileProgressbar("Error while loading attachment content for attachment {$attachment['id']} of ticket {$ticket->getID()}: {$e->getMessage()}");
+                        $this->outputWhileProgressbar(
+                            "Error while loading attachment content for attachment " .
+                            "{$attachment['id']} of ticket {$ticket->getID()}: {$e->getMessage()}"
+                        );
                         continue;
                     }
                     file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
@@ -389,14 +394,9 @@ class ZammadService
 
     protected function outputWhileProgressbar(string $output): void
     {
-        $hasProgressBar = $this->progressBar !== null;
-        if ($hasProgressBar) {
-            $this->progressBar->clear();
-        }
+        $this->progressBar?->clear();
         $this->output->writeln($output);
-        if ($hasProgressBar) {
-            $this->progressBar->display();
-        }
+        $this->progressBar?->display();
     }
 
     protected function getTagsForTicketId(int $id): array
