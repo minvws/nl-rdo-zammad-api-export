@@ -238,7 +238,7 @@ class ZammadService
                 ->add($date->format('Y-m'))
                 ->add($ticket->getValue('number'));
 
-
+            // these temporary folders gets umasked to something sane
             @mkdir($ticketPath->getPath(), 0777, true);
             @mkdir($ticketPath->add('articles')->getPath(), 0777, true);
 

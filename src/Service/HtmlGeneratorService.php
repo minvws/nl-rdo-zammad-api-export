@@ -26,6 +26,7 @@ class HtmlGeneratorService implements Generator
             'data' => $data,
         ]);
 
+        // this temporary folder gets umasked to something sane
         @mkdir($path->getPath(), 0777, true);
 
         file_put_contents($path->add("export-" . time() . ".html")->getPath(), $html);
