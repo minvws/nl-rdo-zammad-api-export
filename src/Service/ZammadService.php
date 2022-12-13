@@ -42,7 +42,7 @@ class ZammadService
             'http_token' => $token,
             'connect_timeout' => 10,
             'read_timeout' => 10,
-            'timeout' => 0,
+            'timeout' => 0, // this is also the default and makes long downloads possible
             'debug' => false,
             'verify' => true,
             'progress' => function ($total, $downloaded) {
@@ -238,7 +238,7 @@ class ZammadService
                 ->add($date->format('Y-m'))
                 ->add($ticket->getValue('number'));
 
-
+            // these temporary folders gets umasked to something sane
             @mkdir($ticketPath->getPath(), 0777, true);
             @mkdir($ticketPath->add('articles')->getPath(), 0777, true);
 
