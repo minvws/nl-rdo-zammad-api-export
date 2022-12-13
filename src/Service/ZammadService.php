@@ -42,7 +42,7 @@ class ZammadService
             'http_token' => $token,
             'connect_timeout' => 10,
             'read_timeout' => 10,
-            'timeout' => 0,
+            'timeout' => 0, // this is also the default and makes long downloads possible
             'debug' => false,
             'verify' => true,
             'progress' => function ($total, $downloaded) {
