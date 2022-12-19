@@ -38,6 +38,14 @@ be exported), and defaults to 100%.
 
 Verbose option displays more info.
 
+## Running Zammad locally with Docker Compose
+
+Full instructions for running Zammad locally with Docker Compose can be found here!
+
+    https://docs.zammad.org/en/latest/install/docker-compose.html
+
+This is supported under Docker For Windows and Linux on amd64. At time of writing this does not appear to be supported on MacOS under Apple Silicon.
+
 ## Contribution
 
 If you plan to make non-trivial changes, we recommend to open an issue beforehand where we can discuss your planned changes. This increases the chance that we might be able to use your contribution (or it avoids doing work if there are reasons why we wouldn't be able to use it).
