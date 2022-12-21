@@ -7,6 +7,11 @@ This is not intended as a backup or restore solution only intended for archiving
 
 You should not host this script at a location that is publicly available. 
 
+## Prereqs
+
+- PHP x.x+ (https://www.php.net/manual/en/install.php)
+- Composer (https://getcomposer.org/download/)
+
 ## Installation
 
 - Clone or download this project
@@ -14,7 +19,15 @@ You should not host this script at a location that is publicly available.
     ```
     composer install --prefer-dist --no-interaction
     ```
+  Or for a local install:
+    ```
+    php composer.phar install --prefer-dist --no-interaction
+    ```
 - Copy .env.example to .env
+
+    ```
+    cp .env.example .env
+    ```
 - Create personal access token with the following permissions in Zammad
     - admin.group
     - admin.ticket
