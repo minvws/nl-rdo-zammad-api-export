@@ -9,7 +9,7 @@ You should not host this script at a location that is publicly available.
 
 ## Prereqs
 
-- PHP x.x+ (https://www.php.net/manual/en/install.php)
+- PHP 8.0+ (https://www.php.net/manual/en/install.php)
 - Composer (https://getcomposer.org/download/)
 
 ## Installation
