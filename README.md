@@ -1,7 +1,7 @@
 # Zammad Ticket Export
 
 This can be used to export tickets from [Zammad](https://zammad.org) to PDF.
-Each ticket will have it own PDF file.
+Each ticket will have its own PDF file.
 
 This is not intended as a backup or restore solution only intended for archiving tickets.
 
@@ -67,4 +67,4 @@ Git commits must be signed https://docs.github.com/en/github/authenticating-to-g
 
 ## License
 
-License is released under the EUPL 1.2 license. [See LICENSE](LICENSE.txt) for details.
+This repository is released under the EUPL 1.2 license. [See LICENSE](LICENSE.txt) for details.
