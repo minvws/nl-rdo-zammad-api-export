@@ -5,7 +5,7 @@ Each ticket will have its own PDF file.
 
 This is not intended as a backup or restore solution only intended for archiving tickets.
 
-You should not host this script at a location that is publicly available. 
+You should not host this script at a location that is publicly available.
 
 ## Prereqs
 
@@ -67,4 +67,4 @@ Git commits must be signed https://docs.github.com/en/github/authenticating-to-g
 
 ## License
 
-This repository is released under the EUPL 1.2 license. [See LICENSE](LICENSE.txt) for details.
+This repository is released under the EUPL 1.2 license. [See LICENSE](LICENSE.TXT) for details.
