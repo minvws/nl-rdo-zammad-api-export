@@ -17,7 +17,7 @@ jobs:
       - name: Composer install (for indexing of vendor blade classes)
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --no-dev
       - name: Create tar
-        run: tar -czf inge3_${{ env.RELEASE_VERSION }}.tar.gz ./zamex.php ./src ./vendor
+        run: tar -czf inge3_${{ env.RELEASE_VERSION }}.tar.gz ./zamex.php ./src ./templates ./vendor
       - name: Upload release tar
         uses: actions/upload-artifact@v3
         with:
