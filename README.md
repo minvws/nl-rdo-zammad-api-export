@@ -51,13 +51,13 @@ be exported), and defaults to 100%.
 
 Verbose option displays more info.
 
-## Running Zammad locally with Docker Compose
+## Development
 
-Full instructions for running Zammad locally with Docker Compose can be found here!
+To work on this Zammad Export Tool, you'll need a Zammad instance for testing and development. You can connect the export script to any Zammad API of your choice. For local development, it is possible to run Zammad locally using Docker Compose. Full instructions can be found [here](https://docs.zammad.org/en/latest/install/docker-compose.html).
 
-    https://docs.zammad.org/en/latest/install/docker-compose.html
+**Note:** This setup is supported on Docker for Windows and Linux (amd64 architecture). At the time of writing, MacOS under Apple Silicon is not officially supported.
 
-This is supported under Docker For Windows and Linux on amd64. At time of writing this does not appear to be supported on MacOS under Apple Silicon.
+**Important:** Zammad in Docker should only be used for development purposes. Avoid using this configuration in production environments.
 
 ## Contribution
 
