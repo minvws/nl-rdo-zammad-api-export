@@ -11,7 +11,8 @@
  */
 require __DIR__.'/vendor/autoload.php';
 
-use Minvws\Zammad\SanitizeTwigFilter;
+use Minvws\Zammad\Twig\ArticleAttachmentLinkReplacerTwigFilter;
+use Minvws\Zammad\Twig\SanitizeTwigFilter;
 use Minvws\Zammad\Service\HtmlGeneratorService;
 use Minvws\Zammad\Service\ZammadService;
 use Minvws\Zammad\Command\ExportCommand;
@@ -26,6 +27,7 @@ $dotenv->load(__DIR__.'/.env');
 $loader = new FilesystemLoader('./templates');
 $twigService = new Environment($loader);
 $twigService->addExtension(new SanitizeTwigFilter());
+$twigService->addExtension(new ArticleAttachmentLinkReplacerTwigFilter());
 $htmlGenerator = new HtmlGeneratorService($twigService);
 
 $zammadService = new ZammadService($_ENV['ZAMMAD_URL'], $_ENV['ZAMMAD_TOKEN'], $htmlGenerator);
