@@ -1,7 +1,7 @@
 # Zammad Ticket Export
 
-This can be used to export tickets from [Zammad](https://zammad.org) to PDF.
-Each ticket will have its own PDF file.
+This can be used to export tickets from [Zammad](https://zammad.org) to HTML.
+Each ticket will have its own HTML file.
 
 This is not intended as a backup or restore solution only intended for archiving tickets.
 
