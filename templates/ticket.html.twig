@@ -59,7 +59,7 @@
     <br>
 
     <div style="border: 1px solid black; padding: 5px;">
-        {{ article.body | raw | nl2br }}
+        {{ article.body | replace_article_attachment_links(article) | raw | nl2br  }}
     </div>
     <br>
     <br>

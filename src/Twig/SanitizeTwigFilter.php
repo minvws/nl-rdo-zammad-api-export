@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Minvws\Zammad;
+namespace Minvws\Zammad\Twig;
 
-use Minvws\Zammad\Service\Sanitize;
+use Minvws\Zammad\Path;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
