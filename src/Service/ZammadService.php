@@ -25,15 +25,21 @@ class ZammadService
 {
     protected Client $client;
     protected Generator $generator;
+    protected ArticleAttachmentLinkService $articleAttachmentLinkService;
     protected OutputInterface $output;
     protected bool $verbose = false;
     protected ?ProgressBar $progressBar;
 
     protected array $groupCache = [];
 
-    public function __construct(string $url, string $token, HtmlGeneratorService $generator)
-    {
+    public function __construct(
+        string $url,
+        string $token,
+        HtmlGeneratorService $generator,
+        ArticleAttachmentLinkService $articleAttachmentLinkService,
+    ) {
         $this->generator = $generator;
+        $this->articleAttachmentLinkService = $articleAttachmentLinkService;
         $this->output = new NullOutput();
         $this->progressBar = null;
 
@@ -268,24 +274,21 @@ class ZammadService
             file_put_contents($ticketPath->add('history.json')->getPath(), json_encode($history, JSON_PRETTY_PRINT));
 
             // Articles
-            /** @var TicketArticle[] $articles */
-            $articles = $ticket->getTicketArticles();
+            /** @var TicketArticle[] $ticketArticles */
+            $ticketArticles = $ticket->getTicketArticles();
             if ($ticket->getError()) {
                 $this->outputWhileProgressbar(
                     "Error while loading ticket articles for ticket {$ticket->getID()}: {$ticket->getError()}"
                 );
             }
 
-            foreach ($articles as $article) {
-                $data = json_encode($article->getValues(), JSON_PRETTY_PRINT);
-
-                // Save article data
+            $articles = [];
+            foreach ($ticketArticles as $article) {
                 $articlePath = $ticketPath->add('articles')->add($article->getID());
                 @mkdir($articlePath->getPath(), 0777, true);
 
-                file_put_contents($articlePath->add('article.json')->getPath(), $data);
-
                 // Attachments
+                $attachments = [];
                 foreach ($article->getValue('attachments') as $attachment) {
                     try {
                         $content = $article->getAttachmentContent($attachment['id']);
@@ -299,11 +302,30 @@ class ZammadService
                         );
                         continue;
                     }
+
+                    // Set filename to sanitized path
+                    $attachment['filename'] = (new Path(null, $attachment['filename']))->getPath();
                     file_put_contents($articlePath->add($attachment['filename'])->getPath(), $content);
+
+                    $attachments[] = $attachment;
                 }
+                $article->setValue('attachments', $attachments);
+
+                // Replace attachment links in article body
+                $article->setValue('body', $this->articleAttachmentLinkService->replaceAttachmentLinks(
+                    $article->getValue('body'),
+                    $article->getValues(),
+                ));
+
+                // Save article data
+                $values = $article->getValues();
+                $data = json_encode($values, JSON_PRETTY_PRINT);
+                file_put_contents($articlePath->add('article.json')->getPath(), $data);
+
+                $articles[] = $values;
             }
 
-            $this->generator->generateTicket($ticketPath, $ticket, $tags, $history);
+            $this->generator->generateTicket($ticketPath, $ticket, $articles, $tags, $history);
         }
 
         return $result;

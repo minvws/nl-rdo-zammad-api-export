@@ -59,7 +59,7 @@
     <br>
 
     <div style="border: 1px solid black; padding: 5px;">
-        {{ article.body | replace_article_attachment_links(article) | raw | nl2br  }}
+        {{ article.body | raw | nl2br }}
     </div>
     <br>
     <br>
@@ -70,7 +70,7 @@
     {% for attachment in article.attachments %}
         <tr>
           <td>
-            <a href="{{ "articles/" ~ article.id ~ "/" ~ attachment.filename | sanitize }}">{{ attachment.filename }}</a>
+            <a href="{{ get_article_attachment_link(article.id, attachment.filename) }}">{{ attachment.filename }}</a>
             <span title="WARNING: attachments may contain harmful content.">&#9888;</span>
           </td>
           <td>{{ attachment.size }} bytes</td>

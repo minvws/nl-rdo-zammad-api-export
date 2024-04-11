@@ -53,13 +53,8 @@ class HtmlGeneratorService implements Generator
         file_put_contents($path->add('index.html')->getPath(), $html);
     }
 
-    public function generateTicket(Path $path, Ticket $ticket, array $tags, array $history): void
+    public function generateTicket(Path $path, Ticket $ticket, array $articles, array $tags, array $history): void
     {
-        $articles = [];
-        foreach ($ticket->getTicketArticles() as $article) {
-            $articles[] = $article->getValues();
-        }
-
         $html = $this->twig->render('ticket.html.twig', [
             'ticket' => $ticket->getValues(),
             'articles' => $articles,
