@@ -18,31 +18,31 @@ class HTTPClient extends Client implements HTTPClientInterface
     /**
      * @psalm-suppress MethodSignatureMismatch
      */
-    public function __construct(array $options = [])
+    public function __construct(array $config = [])
     {
-        $options['base_uri'] = $options['url'] . '/api/' . \ZammadAPIClient\Client::API_VERSION . '/';
+        $config['base_uri'] = $config['url'] . '/api/' . \ZammadAPIClient\Client::API_VERSION . '/';
 
         // Authentication
-        if (!empty($options['username']) || !empty($options['password'])) {
+        if (!empty($config['username']) || !empty($config['password'])) {
             $this->authentication_options = [
-                'username' => $options['username'],
-                'password' => $options['password'],
+                'username' => $config['username'],
+                'password' => $config['password'],
             ];
         }
 
-        if (!empty($options['http_token'])) {
+        if (!empty($config['http_token'])) {
             $this->authentication_options = [
-                'http_token' => $options['http_token'],
+                'http_token' => $config['http_token'],
             ];
         }
 
-        if (!empty($options['oauth2_token'])) {
+        if (!empty($config['oauth2_token'])) {
             $this->authentication_options = [
-                'oauth2_token' => $options['oauth2_token'],
+                'oauth2_token' => $config['oauth2_token'],
             ];
         }
 
-        parent::__construct($options);
+        parent::__construct($config);
     }
 
     /**
