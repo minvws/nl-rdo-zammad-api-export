@@ -126,7 +126,7 @@ class ZammadService
                         "* Error while dumping ticket " . $ticket->getID() . ' : ' . $e->getMessage()
                     );
                     $this->output->writeln("Export incomplete!");
-                    exit;
+                    exit(1);
                 }
 
                 if ($this->verbose) {
@@ -181,7 +181,7 @@ class ZammadService
         $resp = $this->client->getLastResponse();
         if (!$resp || $resp->getStatusCode() >= 400) {
             $this->output->writeln("Error while fetching ticket. Maybe an incorrect or missing authorization key?");
-            return [];
+            exit(1);
         }
 
         return $result;
