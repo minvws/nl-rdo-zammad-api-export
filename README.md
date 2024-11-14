@@ -68,3 +68,7 @@ Git commits must be signed https://docs.github.com/en/github/authenticating-to-g
 ## License
 
 This repository is released under the EUPL 1.2 license. [See LICENSE](LICENSE.TXT) for details.
+
+## Part of iCore
+
+This package is part of the iCore project.
