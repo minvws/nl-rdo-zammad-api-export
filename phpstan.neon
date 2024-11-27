@@ -3,8 +3,7 @@ parameters:
         - src
     level: 8
     inferPrivatePropertyTypeFromConstructor: true
-    checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#Class Minvws\\Zammad\\HTTPClient extends @final class GuzzleHttp\\Client.#'
-
+        - identifier: missingType.iterableValue
