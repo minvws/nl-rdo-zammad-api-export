@@ -36,7 +36,7 @@ jobs:
               run: vendor/bin/phpcs
             - name: Static analysis with PHPStan
               run: vendor/bin/phpstan analyse
-            - name: Static analysis with PHPStan
+            - name: Static analysis with Psalm
               run: vendor/bin/psalm
             - name: Execute tests (Unit and Feature)
               run: vendor/bin/phpunit
