@@ -130,9 +130,7 @@ class ZammadService
                 }
 
                 if ($this->verbose) {
-                    if ($this->progressBar) {
-                        $this->progressBar->finish();
-                    }
+                    $this->progressBar->finish();
                     $this->output->writeln("");
                 }
             }
