@@ -26,15 +26,15 @@
     }
   ],
   "config": {
-      "platform": {
-         "php": "8.0.2"
-      },
-      "optimize-autoloader": true,
-      "preferred-install": "dist",
-      "sort-packages": true
+    "platform": {
+      "php": "8.2.0"
+    },
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
   },
   "require": {
-    "php": "^8.0.2",
+    "php": "^8.2.0",
     "zammad/zammad-api-client-php": "^2.1.0",
     "symfony/console": "^6.0",
     "symfony/dotenv": "^6.0",
