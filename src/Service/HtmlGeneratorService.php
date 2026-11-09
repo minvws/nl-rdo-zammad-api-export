@@ -6,7 +6,6 @@ namespace Minvws\Zammad\Service;
 
 use Minvws\Zammad\Path;
 use Twig\Environment;
-use ZammadAPIClient\Resource\Ticket;
 
 class HtmlGeneratorService implements Generator
 {
@@ -53,10 +52,10 @@ class HtmlGeneratorService implements Generator
         file_put_contents($path->add('index.html')->getPath(), $html);
     }
 
-    public function generateTicket(Path $path, Ticket $ticket, array $articles, array $tags, array $history): void
+    public function generateTicket(Path $path, array $ticket, array $articles, array $tags, array $history): void
     {
         $html = $this->twig->render('ticket.html.twig', [
-            'ticket' => $ticket->getValues(),
+            'ticket' => $ticket,
             'articles' => $articles,
             'tags' => $tags,
             'history' => $history,
